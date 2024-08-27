@@ -47,7 +47,8 @@ module Siign
         Country: customer.country.name,
         Mobile: customer.phone,
       })
-      "Signature lancée"
+      @title = 'Procédure de signature lancée'
+      erb :transaction_started, layout: :default
     end
   end
 end

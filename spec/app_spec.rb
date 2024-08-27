@@ -53,6 +53,6 @@ RSpec.describe Siign::App do
     post '/devis/3'
 
     expect(last_response).to be_ok
-    expect(last_response.body).to eq('Signature lancée')
+    expect(last_response.body).to match('Signature lancée')
   end
 end
