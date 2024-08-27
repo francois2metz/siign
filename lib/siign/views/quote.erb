@@ -1,0 +1,7 @@
+<h1>Devis <%= @title %></h1>
+<form action="" method="post">
+   <button type="submit" class="btn btn-primary">Signer le devis</button>
+</form>
+<div class="ratio ratio-4x3">
+  <iframe src="/devis/<%= @id %>/pdf"></iframe>
+</div>
