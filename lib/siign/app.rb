@@ -7,10 +7,17 @@ module Siign
       login_tiime
     end
 
-    get '/devis/:id' do
-      quotation = Tiime::Quotation.find(id: params[:id])
+    get '/devis' do
+      @quotes = Tiime::Quotation.all
 
-      @title = quotation.title
+      @title = 'Devis'
+      erb :quotes, layout: :default
+    end
+
+    get '/devis/:id' do
+      quote = Tiime::Quotation.find(id: params[:id])
+
+      @title = quote.title
       @id = params[:id]
       erb :quote, layout: :default
     end

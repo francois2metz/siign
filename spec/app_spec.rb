@@ -10,6 +10,20 @@ RSpec.describe Siign::App do
     described_class
   end
 
+  it 'display quotes' do
+    expect(Siign::Authenticate).to receive(:get_or_fetch_token)
+    expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+    expect(Tiime::Quotation).to receive(:all).and_return([
+                                                           Tiime::Quotation.new(title: 'Test Quotation'),
+                                                           Tiime::Quotation.new(title: 'New Quotation')
+                                                         ])
+
+    get '/devis'
+    expect(last_response).to be_ok
+    expect(last_response.body).to match('Test Quotation')
+    expect(last_response.body).to match('New Quotation')
+  end
+
   it 'display a quote' do
     expect(Siign::Authenticate).to receive(:get_or_fetch_token)
     expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
