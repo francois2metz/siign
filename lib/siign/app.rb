@@ -1,13 +1,6 @@
 require 'sinatra'
 require 'tiime'
 
-def login_tiime
-  access_token = Siign::Authenticate.get_or_fetch_token(ENV['TIIME_USER'], ENV['TIIME_PASSWORD'])
-  Tiime.bearer = access_token
-  company = Tiime::Company.all.first
-  Tiime.default_company_id = company.id
-end
-
 module Siign
   class App < Sinatra::Base
     before do
@@ -49,6 +42,15 @@ module Siign
       })
       @title = 'Procédure de signature lancée'
       erb :transaction_started, layout: :default
+    end
+
+    private
+
+    def login_tiime
+      access_token = Siign::Authenticate.get_or_fetch_token(ENV['TIIME_USER'], ENV['TIIME_PASSWORD'])
+      Tiime.bearer = access_token
+      company = Tiime::Company.all.first
+      Tiime.default_company_id = company.id
     end
   end
 end
