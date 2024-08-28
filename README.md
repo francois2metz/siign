@@ -4,10 +4,16 @@ Integrate [Tiime][] with [Docage][] to sign quotes.
 
 ## Configuration
 
+You should the following environment variables:
+
 ```
+# Tiime user email
 TIIME_USER=
+# Tiime password
 TIIME_PASSWORD=
+# Docage email
 DOCAGE_USER=
+# Docage API key
 DOCAGE_API_KEY=
 ```
 
