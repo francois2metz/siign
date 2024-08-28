@@ -1,3 +1,4 @@
+require 'faraday'
 require 'faraday-cookie_jar'
 
 module Siign
