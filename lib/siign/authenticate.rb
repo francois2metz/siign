@@ -9,6 +9,21 @@ module Siign
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
       REALM = 'Chronos-prod-db'
 
+      def authenticate(user, password)
+        body = conn.post('/co/authenticate', authenticate_params(user, password), { origin: 'https://apps.tiime.fr' }).body
+        login_ticket = body["login_ticket"]
+        response = conn.get('/authorize', authorize_params(user, login_ticket))
+        params = CGI::parse(URI(response.headers["location"]).fragment)
+        params['access_token'].first
+      end
+
+      def get_or_fetch_token(user, password)
+        check_token_validity
+        @access_token ||= authenticate(user, password)
+      end
+
+      private
+
       def conn
         @conn ||= Faraday.new(url: 'https://auth0.tiime.fr') do |f|
           f.request :json
@@ -41,19 +56,6 @@ module Siign
           nonce: 'nonce',
           state: 'state',
         }
-      end
-
-      def authenticate(user, password)
-        body = conn.post('/co/authenticate', authenticate_params(user, password), { origin: 'https://apps.tiime.fr' }).body
-        login_ticket = body["login_ticket"]
-        response = conn.get('/authorize', authorize_params(user, login_ticket))
-        params = CGI::parse(URI(response.headers["location"]).fragment)
-        params['access_token'].first
-      end
-
-      def get_or_fetch_token(user, password)
-        check_token_validity
-        @access_token ||= authenticate(user, password)
       end
 
       def check_token_validity
