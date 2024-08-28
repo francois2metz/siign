@@ -40,7 +40,6 @@ module Siign
           login_ticket: login_ticket,
           nonce: 'nonce',
           state: 'state',
-#          uth0Client: 'eyJuYW1lIjoiYXV0aDAuanMiLCJ2ZXJzaW9uIjoiOS4yNi4xIn0='
         }
       end
 
