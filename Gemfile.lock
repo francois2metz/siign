@@ -48,6 +48,7 @@ GEM
     crass (1.0.6)
     diff-lcs (1.5.1)
     domain_name (0.6.20240107)
+    dotenv (3.1.2)
     drb (2.2.1)
     erubi (1.13.0)
     faraday (2.10.1)
@@ -142,6 +143,12 @@ GEM
       rack-protection (= 4.0.0)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
+    sqlite3 (2.0.4-aarch64-linux-gnu)
+    sqlite3 (2.0.4-arm-linux-gnu)
+    sqlite3 (2.0.4-arm64-darwin)
+    sqlite3 (2.0.4-x86-linux-gnu)
+    sqlite3 (2.0.4-x86_64-darwin)
+    sqlite3 (2.0.4-x86_64-linux-gnu)
     strscan (3.1.0)
     tilt (2.4.0)
     tzinfo (2.0.6)
@@ -159,12 +166,14 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  dotenv
   faraday
   faraday-cookie_jar
   faraday-multipart
   puma
   rspec
   sinatra
+  sqlite3
   tiime!
 
 BUNDLED WITH

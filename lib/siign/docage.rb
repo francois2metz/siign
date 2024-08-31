@@ -22,6 +22,10 @@ module Siign
       conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client))
     end
 
+    def get_transaction(id)
+      conn.get("/Transactions/ById/#{id}")
+    end
+
     private
 
     def transaction_payload(name, fileio, client)
@@ -34,7 +38,15 @@ module Siign
               FriendlyName: 'Contrat'
             }
           ],
-          TransactionMembers: [{ FriendlyName: 'Client' }],
+          TransactionMembers: [
+            {
+              NotifyInvitation: false,
+              NotifySignature: false,
+              NotifyRefusal: false,
+              NotifyCompletion: false,
+              FriendlyName: 'Client'
+            }
+          ],
         }),
         Client: JSON.generate(client),
         Contrat: Faraday::Multipart::FilePart.new(fileio, 'application/pdf')
