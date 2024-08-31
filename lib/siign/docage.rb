@@ -34,8 +34,8 @@ module Siign
           Name: name,
           TransactionFiles: [
             {
-              Filename: 'devis-1.pdf',
-              FriendlyName: 'Contrat'
+              Filename: 'devis.pdf',
+              FriendlyName: 'Devis'
             }
           ],
           TransactionMembers: [
@@ -49,7 +49,7 @@ module Siign
           ],
         }),
         Client: JSON.generate(client),
-        Contrat: Faraday::Multipart::FilePart.new(fileio, 'application/pdf')
+        Devis: Faraday::Multipart::FilePart.new(fileio, 'application/pdf')
       }
 
       payload

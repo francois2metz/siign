@@ -14,8 +14,8 @@ RSpec.describe Siign::Docage do
                                                           Name: 'name',
                                                           TransactionFiles: [
                                                             {
-                                                              Filename: 'devis-1.pdf',
-                                                              FriendlyName: 'Contrat'
+                                                              Filename: 'devis.pdf',
+                                                              FriendlyName: 'Devis'
                                                             }
                                                           ],
                                                           TransactionMembers: [
@@ -43,7 +43,7 @@ RSpec.describe Siign::Docage do
                                                      Mobile: "+33XXXXXXXXX",
                                                      Company: ""
                                                    }),
-                             Contrat: be_a_kind_of(Faraday::Multipart::FilePart)
+                             Devis: be_a_kind_of(Faraday::Multipart::FilePart)
                            }
                          )
       described_class.new('user', 'token').create_full_transaction(
