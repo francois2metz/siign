@@ -7,8 +7,8 @@ gem 'sqlite3'
 gem 'faraday'
 gem 'faraday-cookie_jar'
 gem 'faraday-multipart'
+gem 'dotenv'
 
 group :test, :development do
-  gem 'dotenv'
   gem 'rspec'
 end
