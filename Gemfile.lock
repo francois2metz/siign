@@ -51,8 +51,8 @@ GEM
     dotenv (3.1.2)
     drb (2.2.1)
     erubi (1.13.0)
-    faraday (2.10.1)
-      faraday-net_http (>= 2.0, < 3.2)
+    faraday (2.11.0)
+      faraday-net_http (>= 2.0, < 3.4)
       logger
     faraday-cookie_jar (0.0.7)
       faraday (>= 0.8.0)
@@ -62,7 +62,7 @@ GEM
       zlib (~> 3.0)
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (3.1.1)
+    faraday-net_http (3.3.0)
       net-http
     flexirest (1.12.4)
       actionpack
@@ -153,7 +153,7 @@ GEM
     tilt (2.4.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    uri (0.13.0)
+    uri (0.13.1)
     useragent (0.16.10)
     zlib (3.1.1)
 
