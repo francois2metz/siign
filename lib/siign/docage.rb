@@ -8,16 +8,6 @@ module Siign
       @api_key = api_key
     end
 
-    def conn
-      @conn ||= Faraday.new(url: 'https://api.docage.com') do |f|
-        f.request :multipart
-        f.response :raise_error
-        f.response :json
-        f.adapter :net_http
-        f.request :authorization, :basic, @username, @api_key
-      end
-    end
-
     def create_full_transaction(name, fileio, client)
       conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client))
     end
@@ -27,6 +17,16 @@ module Siign
     end
 
     private
+
+    def conn
+      @conn ||= Faraday.new(url: 'https://api.docage.com') do |f|
+        f.request :multipart
+        f.response :raise_error
+        f.response :json
+        f.adapter :net_http
+        f.request :authorization, :basic, @username, @api_key
+      end
+    end
 
     def transaction_payload(name, fileio, client)
       payload = {
