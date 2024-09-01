@@ -15,6 +15,8 @@ TIIME_PASSWORD=
 DOCAGE_USER=
 # Docage API key
 DOCAGE_API_KEY=
+# The path to the sqlite database
+DB_PATH=
 ```
 
 ## Usage
