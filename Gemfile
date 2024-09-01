@@ -1,14 +1,18 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
 
-gem 'sinatra'
-gem 'tiime', github: 'francois2metz/ruby-tiime'
-gem 'puma'
-gem 'sqlite3'
+source 'https://rubygems.org'
+
+gem 'dotenv'
 gem 'faraday'
 gem 'faraday-cookie_jar'
 gem 'faraday-multipart'
-gem 'dotenv'
+gem 'puma'
+gem 'sinatra'
+gem 'sqlite3'
+gem 'tiime', github: 'francois2metz/ruby-tiime'
 
 group :test, :development do
   gem 'rspec'
+  gem 'rubocop'
+  gem 'rubocop-rspec'
 end

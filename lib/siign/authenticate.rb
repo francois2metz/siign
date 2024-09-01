@@ -1,20 +1,22 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'faraday-cookie_jar'
 
 module Siign
   class Authenticate
     class << self
-      attr_accessor :access_token
-      attr_accessor :conn
+      attr_accessor :access_token, :conn
 
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
       REALM = 'Chronos-prod-db'
 
       def authenticate(user, password)
-        body = conn.post('/co/authenticate', authenticate_params(user, password), { origin: 'https://apps.tiime.fr' }).body
-        login_ticket = body["login_ticket"]
+        body = conn.post('/co/authenticate', authenticate_params(user, password),
+                         { origin: 'https://apps.tiime.fr' }).body
+        login_ticket = body['login_ticket']
         response = conn.get('/authorize', authorize_params(user, login_ticket))
-        params = CGI::parse(URI(response.headers["location"]).fragment)
+        params = CGI.parse(URI(response.headers['location']).fragment)
         params['access_token'].first
       end
 
@@ -55,7 +57,7 @@ module Siign
           realm: REALM,
           login_ticket: login_ticket,
           nonce: 'nonce',
-          state: 'state',
+          state: 'state'
         }
       end
 

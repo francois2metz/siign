@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sqlite3'
 
 module Siign
@@ -13,7 +15,8 @@ module Siign
 
     def get_transaction_by_quote_id(quote_id)
       result = db.execute('SELECT transaction_id FROM quote_transaction where quote_id = ?', [quote_id])
-      return nil if result.length == 0
+      return nil if result.empty?
+
       result.first.first
     end
 

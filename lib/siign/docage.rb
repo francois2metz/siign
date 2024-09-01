@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'faraday/multipart'
 
@@ -29,30 +31,28 @@ module Siign
     end
 
     def transaction_payload(name, fileio, client)
-      payload = {
+      {
         Transaction: JSON.generate({
-          Name: name,
-          TransactionFiles: [
-            {
-              Filename: 'devis.pdf',
-              FriendlyName: 'Devis'
-            }
-          ],
-          TransactionMembers: [
-            {
-              NotifyInvitation: false,
-              NotifySignature: false,
-              NotifyRefusal: false,
-              NotifyCompletion: false,
-              FriendlyName: 'Client'
-            }
-          ],
-        }),
+                                     Name: name,
+                                     TransactionFiles: [
+                                       {
+                                         Filename: 'devis.pdf',
+                                         FriendlyName: 'Devis'
+                                       }
+                                     ],
+                                     TransactionMembers: [
+                                       {
+                                         NotifyInvitation: false,
+                                         NotifySignature: false,
+                                         NotifyRefusal: false,
+                                         NotifyCompletion: false,
+                                         FriendlyName: 'Client'
+                                       }
+                                     ]
+                                   }),
         Client: JSON.generate(client),
         Devis: Faraday::Multipart::FilePart.new(fileio, 'application/pdf')
       }
-
-      payload
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec'
 
 require 'siign'
@@ -21,9 +23,9 @@ RSpec.describe Siign::Db do
     it 'cannot insert another transaction_id for the same quote' do
       db = described_class.new(':memory:')
       db.associate_quote_and_transaction('1', '42')
-      expect {
+      expect do
         db.associate_quote_and_transaction('1', '42')
-      }.to raise_error(SQLite3::ConstraintException)
+      end.to raise_error(SQLite3::ConstraintException)
     end
   end
 
@@ -45,8 +47,8 @@ RSpec.describe Siign::Db do
       db.associate_quote_and_transaction('1', '42')
       db.associate_quote_and_transaction('2', '43')
       expect(db.list_quotes_and_transactions).to eq([
-                                                      ['1', '42'],
-                                                      ['2', '43']
+                                                      %w[1 42],
+                                                      %w[2 43]
                                                     ])
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'tiime'
 
@@ -35,16 +37,16 @@ module Siign
       contacts = Tiime::Contact.all(id: quote.client.id)
 
       transaction = docage.create_full_transaction(quote.title, StringIO.new(quote_pdf), {
-        Email: customer.email,
-        FirstName: contacts.first.firstname,
-        LastName: contacts.first.lastname,
-        Address1: customer.address,
-        Address2: customer.address_complement,
-        City: customer.city,
-        ZipCode: customer.postal_code,
-        Country: customer.country.name,
-        Mobile: customer.phone,
-      })
+                                                     Email: customer.email,
+                                                     FirstName: contacts.first.firstname,
+                                                     LastName: contacts.first.lastname,
+                                                     Address1: customer.address,
+                                                     Address2: customer.address_complement,
+                                                     City: customer.city,
+                                                     ZipCode: customer.postal_code,
+                                                     Country: customer.country.name,
+                                                     Mobile: customer.phone
+                                                   })
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])
 
@@ -54,15 +56,15 @@ module Siign
     private
 
     def docage
-      @docage ||= Docage.new(ENV['DOCAGE_USER'], ENV['DOCAGE_API_KEY'])
+      @docage ||= Docage.new(ENV.fetch('DOCAGE_USER', nil), ENV.fetch('DOCAGE_API_KEY', nil))
     end
 
     def db
-      @db ||= Db.new(ENV['DB_PATH'])
+      @db ||= Db.new(ENV.fetch('DB_PATH', nil))
     end
 
     def login_tiime
-      access_token = Authenticate.get_or_fetch_token(ENV['TIIME_USER'], ENV['TIIME_PASSWORD'])
+      access_token = Authenticate.get_or_fetch_token(ENV.fetch('TIIME_USER', nil), ENV.fetch('TIIME_PASSWORD', nil))
       Tiime.bearer = access_token
       company = Tiime::Company.all.first
       Tiime.default_company_id = company.id

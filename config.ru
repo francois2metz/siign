@@ -1,4 +1,6 @@
-$LOAD_PATH.unshift "./lib"
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift './lib'
 require 'dotenv/load'
 require 'siign'
 
