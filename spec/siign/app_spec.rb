@@ -64,8 +64,6 @@ RSpec.describe Siign::App do
     end
 
     it 'display nothing if not connected' do
-      expect_tiime_login
-
       get '/devis'
 
       expect(last_response.status).to eq(302)

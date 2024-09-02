@@ -24,12 +24,10 @@ module Siign
       end
     end
 
-    before '/devis*' do
-      login_tiime
-    end
-
     get '/devis' do
       return redirect('/login') unless logged?
+
+      login_tiime
 
       @quotes = Tiime::Quotation.all
       @quotes_and_transactions = db.list_quotes_and_transactions
@@ -39,6 +37,7 @@ module Siign
     end
 
     get '/devis/:id/:transactionid' do
+      login_tiime
       quote = Tiime::Quotation.find(id: params[:id])
       transaction = docage.get_transaction(params[:transactionid])
 
@@ -52,6 +51,8 @@ module Siign
 
     post '/devis/:id' do
       return redirect('/login') unless logged?
+
+      login_tiime
 
       quote_id = params[:id]
       quote = Tiime::Quotation.find(id: quote_id)
