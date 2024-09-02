@@ -6,15 +6,13 @@ RUN set -eux ;\
         sqlite3 \
         sqlite3-pcre
 
-WORKDIR /code
+WORKDIR /code/siign
 
-RUN git clone https://github.com/francois2metz/siign.git && \
-    cd siign && \
-    bundle config set deployment true && \
+COPY . .
+
+RUN bundle config set deployment true && \
     bundle config set without 'test' 'development' && \
     bundle install
-
-WORKDIR /code/siign
 
 CMD ["bundle", "exec", "puma", "--environment", "production"]
 
