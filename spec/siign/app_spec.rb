@@ -84,8 +84,6 @@ RSpec.describe Siign::App do
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
-      expect_tiime_login
-      expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
       get '/devis/2/iddocage'

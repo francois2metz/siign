@@ -37,9 +37,9 @@ module Siign
     end
 
     get '/devis/:id/:transactionid' do
+      transaction = docage.get_transaction(params[:transactionid])
       login_tiime
       quote = Tiime::Quotation.find(id: params[:id])
-      transaction = docage.get_transaction(params[:transactionid])
 
       @transaction_id = transaction.body['MemberSummaries'].first['Id']
       @title = quote.title
