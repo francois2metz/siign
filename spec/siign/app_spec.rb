@@ -12,16 +12,46 @@ RSpec.describe Siign::App do
     described_class
   end
   let(:db_path) { '/tmp/test.sqlite' }
+  let(:tiime_password) { 'test' }
 
   before do
     FileUtils.rm db_path, force: true
     ENV['DB_PATH'] = db_path
+    ENV['TIIME_PASSWORD'] = tiime_password
+  end
+
+  def expect_tiime_login
+    expect(Siign::Authenticate).to receive(:get_or_fetch_token)
+    expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+  end
+
+  describe 'GET /login' do
+    it 'display the login form' do
+      get '/login'
+      expect(last_response).to be_ok
+    end
+  end
+
+  describe 'POST /login' do
+    it 'check the password and redirect to /devis' do
+      post '/login', password: tiime_password
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['location']).to eq('http://example.org/devis')
+    end
+
+    it 'display the login form if the password is wrong' do
+      post '/login', password: 'test2'
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['location']).to eq('http://example.org/login')
+    end
   end
 
   describe 'GET /devis' do
-    it 'display quotes' do
-      expect(Siign::Authenticate).to receive(:get_or_fetch_token)
-      expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+    it 'display quotes when connected' do
+      post '/login', password: tiime_password
+      expect_tiime_login
       expect(Tiime::Quotation).to receive(:all).and_return([
                                                              Tiime::Quotation.new(title: 'Test Quotation'),
                                                              Tiime::Quotation.new(title: 'New Quotation')
@@ -32,13 +62,21 @@ RSpec.describe Siign::App do
       expect(last_response.body).to match('Test Quotation')
       expect(last_response.body).to match('New Quotation')
     end
+
+    it 'display nothing if not connected' do
+      expect_tiime_login
+
+      get '/devis'
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['location']).to eq('http://example.org/login')
+    end
   end
 
   describe 'GET /devis/:id/:transactionid' do
     it 'display a quote' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect(Siign::Authenticate).to receive(:get_or_fetch_token)
-      expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+      expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
 
@@ -48,8 +86,7 @@ RSpec.describe Siign::App do
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
-      expect(Siign::Authenticate).to receive(:get_or_fetch_token)
-      expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+      expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
@@ -60,9 +97,9 @@ RSpec.describe Siign::App do
   end
 
   describe 'POST /devis/:id' do
-    it 'create the docage transaction' do
-      expect(Siign::Authenticate).to receive(:get_or_fetch_token)
-      expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
+    it 'create the docage transaction when connected' do
+      post '/login', password: tiime_password
+      expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '3').and_return(Tiime::Quotation.new(title: 'Test Quotation',
                                                                                                client: Tiime::Quotation.new({ id: 1 })))
       expect(Tiime::Quotation).to receive(:pdf).with(id: '3').and_return('pdftext')
@@ -84,8 +121,8 @@ RSpec.describe Siign::App do
                                                                                       }).and_return(double(body: { 'Id' => 'iddocage' }))
       post '/devis/3'
 
-      expect(last_response.headers['location']).to eql('http://example.org/devis')
-      expect(Siign::Db.new(db_path).get_transaction_by_quote_id('3')).to eql('iddocage')
+      expect(last_response.headers['location']).to eq('http://example.org/devis')
+      expect(Siign::Db.new(db_path).get_transaction_by_quote_id('3')).to eq('iddocage')
     end
   end
 end

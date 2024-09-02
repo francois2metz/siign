@@ -1,15 +1,36 @@
 # frozen_string_literal: true
 
+require 'securerandom'
 require 'sinatra'
 require 'tiime'
 
 module Siign
   class App < Sinatra::Base
-    before do
+    enable :sessions
+    set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
+
+    get '/login' do
+      @title = 'Login'
+
+      erb :login, layout: :default
+    end
+
+    post '/login' do
+      if ENV.fetch('TIIME_PASSWORD', nil) == params[:password]
+        session[:logged] = true
+        redirect to('/devis')
+      else
+        redirect to('/login')
+      end
+    end
+
+    before '/devis*' do
       login_tiime
     end
 
     get '/devis' do
+      return redirect('/login') unless logged?
+
       @quotes = Tiime::Quotation.all
       @quotes_and_transactions = db.list_quotes_and_transactions
       @title = 'Devis'
@@ -30,6 +51,8 @@ module Siign
     end
 
     post '/devis/:id' do
+      return redirect('/login') unless logged?
+
       quote_id = params[:id]
       quote = Tiime::Quotation.find(id: quote_id)
       quote_pdf = Tiime::Quotation.pdf(id: quote_id)
@@ -68,6 +91,10 @@ module Siign
       Tiime.bearer = access_token
       company = Tiime::Company.all.first
       Tiime.default_company_id = company.id
+    end
+
+    def logged?
+      session[:logged] == true
     end
   end
 end
