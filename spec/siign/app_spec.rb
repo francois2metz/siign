@@ -25,6 +25,14 @@ RSpec.describe Siign::App do
     expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
   end
 
+  describe 'GET /' do
+    it 'returns a 404' do
+      get '/'
+      expect(last_response).not_to be_ok
+      expect(last_response.status).to eq(404)
+    end
+  end
+
   describe 'GET /login' do
     it 'display the login form' do
       get '/login'

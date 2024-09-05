@@ -9,6 +9,10 @@ module Siign
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
+    not_found do
+      erb :error_404, layout: :default
+    end
+
     get '/login' do
       @title = 'Login'
 
@@ -44,7 +48,7 @@ module Siign
       @transaction_id = transaction.body['MemberSummaries'].first['Id']
       @title = quote.title
 
-      erb :quote, layout: :default
+      erb :quote, layout: :base
     rescue Faraday::ResourceNotFound
       halt 404
     end
