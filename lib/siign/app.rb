@@ -47,7 +47,7 @@ module Siign
       login_tiime
       quote = Tiime::Quotation.find(id: params[:id])
 
-      @transaction_id = transaction.body['MemberSummaries'].first['Id']
+      @transaction_member_id = transaction.body['MemberSummaries'].first['Id']
       @title = quote.title
 
       erb :quote, layout: :base
