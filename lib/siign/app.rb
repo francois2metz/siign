@@ -10,11 +10,13 @@ module Siign
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
     not_found do
+      @title = 'Page non trouvée'
+
       erb :error_404, layout: :default
     end
 
     get '/login' do
-      @title = 'Login'
+      @title = 'Connexion'
 
       erb :login, layout: :default
     end
