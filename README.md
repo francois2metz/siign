@@ -15,6 +15,8 @@ TIIME_PASSWORD=
 DOCAGE_USER=
 # Docage API key
 DOCAGE_API_KEY=
+# Enable docage test mode to not consume credits
+DOCAGE_TEST_MODE=true
 # The path to the sqlite database
 DB_PATH=
 ```

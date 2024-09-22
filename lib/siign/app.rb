@@ -76,7 +76,8 @@ module Siign
                                                      ZipCode: customer.postal_code,
                                                      Country: customer.country.name,
                                                      Mobile: customer.phone
-                                                   })
+                                                   }, is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false')
+
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])
 

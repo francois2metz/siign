@@ -10,8 +10,8 @@ module Siign
       @api_key = api_key
     end
 
-    def create_full_transaction(name, fileio, client)
-      conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client))
+    def create_full_transaction(name, fileio, client, is_test: false)
+      conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client, is_test: is_test))
     end
 
     def get_transaction(id)
@@ -30,10 +30,11 @@ module Siign
       end
     end
 
-    def transaction_payload(name, fileio, client)
+    def transaction_payload(name, fileio, client, is_test:)
       {
         Transaction: JSON.generate({
                                      Name: name,
+                                     IsTest: is_test,
                                      TransactionFiles: [
                                        {
                                          Filename: 'devis.pdf',

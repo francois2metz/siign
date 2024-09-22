@@ -122,7 +122,7 @@ RSpec.describe Siign::App do
                                                                                         ZipCode: '75000',
                                                                                         Country: 'France',
                                                                                         Mobile: '+33600000000'
-                                                                                      }).and_return(double(body: { 'Id' => 'iddocage' }))
+                                                                                      }, is_test: false).and_return(double(body: { 'Id' => 'iddocage' }))
       post '/devis/3'
 
       expect(last_response.headers['location']).to eq('http://example.org/devis')
