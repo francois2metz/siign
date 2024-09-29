@@ -5,7 +5,6 @@ require 'siign'
 
 RSpec.describe Siign::Notification do
   describe '#notify' do
-
     def expect_notification_message(message)
       expect(Faraday).to receive(:get).with("http://example.net/?message=#{ERB::Util.url_encode(message)}")
     end
@@ -45,12 +44,12 @@ RSpec.describe Siign::Notification do
       described_class.new.notify :signed, 'Test Quotation'
     end
 
-    [
-      :draft,
-      :scheduled,
-      :waitinginformations,
-      :active,
-      :validated
+    %i[
+      draft
+      scheduled
+      waitinginformations
+      active
+      validated
     ].each do |status|
       it "notify nothing in the #{status} case" do
         expect(Faraday).not_to receive(:get)

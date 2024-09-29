@@ -5,7 +5,7 @@ require 'faraday'
 module Siign
   class Notification
     def notify(status, quote_title)
-      notification_url = ENV['NOTIFICATION_URL']
+      notification_url = ENV.fetch('NOTIFICATION_URL', nil)
       return if notification_url.nil?
 
       msg = case status
@@ -17,8 +17,6 @@ module Siign
               "Sale nouvelle, devis #{quote_title} expiré !"
             when :aborted
               "Sale nouvelle, devis #{quote_title} annulé !"
-            else
-              nil
             end
       return if msg.nil?
 

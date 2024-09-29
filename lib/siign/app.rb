@@ -65,12 +65,12 @@ module Siign
       6 => :expired,
       7 => :refused,
       8 => :aborted
-    }
+    }.freeze
 
     post '/devis/:id/:transactionid' do
       request.body.rewind
       data = JSON.parse request.body.read
-      transaction = docage.get_transaction(params[:transactionid])
+      docage.get_transaction(params[:transactionid])
       login_tiime
       quote = Tiime::Quotation.find(id: params[:id])
       Notification.new.notify(DOCAGE_STATUS_TO_SYMBOL[data['Status']], quote.title)
@@ -100,7 +100,6 @@ module Siign
                                                      Country: customer.country.name,
                                                      Mobile: customer.phone
                                                    }, is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false')
-
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])
 
