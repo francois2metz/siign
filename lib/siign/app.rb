@@ -55,6 +55,29 @@ module Siign
       halt 404
     end
 
+    DOCAGE_STATUS_TO_SYMBOL = {
+      0 => :draft,
+      1 => :scheduled,
+      2 => :waitinginformations,
+      3 => :active,
+      4 => :validated,
+      5 => :signed,
+      6 => :expired,
+      7 => :refused,
+      8 => :aborted
+    }
+
+    post '/devis/:id/:transactionid' do
+      request.body.rewind
+      data = JSON.parse request.body.read
+      transaction = docage.get_transaction(params[:transactionid])
+      login_tiime
+      quote = Tiime::Quotation.find(id: params[:id])
+      Notification.new.notify(DOCAGE_STATUS_TO_SYMBOL[data['Status']], quote.title)
+    rescue Faraday::ResourceNotFound
+      halt 404
+    end
+
     post '/devis/:id' do
       return redirect('/login') unless logged?
 
