@@ -7,6 +7,13 @@ require 'tiime'
 module Siign
   # The web app to serve requests
   class App < Sinatra::Base
+    QUOTE_STATUS_TO_BOOTSTRAP = {
+      'saved' => 'primary',
+      'accepted' => 'success',
+      'refused' => 'secondary',
+      'cancelled' => 'secondary'
+    }.freeze
+
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
