@@ -6,7 +6,8 @@ require 'faraday-cookie_jar'
 module Siign
   class Authenticate
     class << self
-      attr_accessor :access_token, :conn
+      attr_accessor :access_token
+      attr_writer :conn
 
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
       REALM = 'Chronos-prod-db'
