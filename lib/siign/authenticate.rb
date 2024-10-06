@@ -6,8 +6,7 @@ require 'faraday-cookie_jar'
 module Siign
   class Authenticate
     class << self
-      attr_accessor :access_token
-      attr_writer :conn
+      attr_writer :conn, :token
 
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
       REALM = 'Chronos-prod-db'
@@ -21,9 +20,9 @@ module Siign
         params['access_token'].first
       end
 
-      def get_or_fetch_token(user, password)
+      def token(user, password)
         check_token_validity
-        @access_token ||= authenticate(user, password)
+        @token ||= authenticate(user, password)
       end
 
       private
@@ -63,12 +62,12 @@ module Siign
       end
 
       def check_token_validity
-        return unless @access_token
+        return unless @token
 
         begin
           Tiime::User.me
         rescue Flexirest::HTTPClientException
-          @access_token = nil
+          @token = nil
         end
       end
     end

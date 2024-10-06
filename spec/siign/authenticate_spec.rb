@@ -37,7 +37,7 @@ RSpec.describe Siign::Authenticate do
   end
 
   before do
-    described_class.access_token = nil
+    described_class.token = nil
     described_class.conn = nil
   end
 
@@ -48,32 +48,32 @@ RSpec.describe Siign::Authenticate do
     expect(access_token).to eq('eee')
   end
 
-  describe '#get_or_fetch_token' do
+  describe '#token' do
     it 'fetch the token if doest not exist' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token('user', 'password', 'rrr')
-      access_token = described_class.get_or_fetch_token('user', 'password')
+      access_token = described_class.token('user', 'password')
       expect(access_token).to eq('rrr')
     end
 
     it 'returns access token if it already exist' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token('user', 'password', 'rrr')
-      access_token = described_class.get_or_fetch_token('user', 'password')
+      access_token = described_class.token('user', 'password')
       expect(access_token).to eq('rrr')
       expect(Tiime::User).to receive(:me)
-      access_token2 = described_class.get_or_fetch_token('user', 'password')
+      access_token2 = described_class.token('user', 'password')
       expect(access_token2).to eq('rrr')
     end
 
     it 'fetch the token if the token is invalid' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token('user', 'password', 'rrr')
-      access_token = described_class.get_or_fetch_token('user', 'password')
+      access_token = described_class.token('user', 'password')
       expect(access_token).to eq('rrr')
       expect(Tiime::User).to receive(:me).and_raise(Flexirest::HTTPClientException.new({ status: 401 }))
       expect_access_token('user', 'password', 'aaa')
-      access_token2 = described_class.get_or_fetch_token('user', 'password')
+      access_token2 = described_class.token('user', 'password')
       expect(access_token2).to eq('aaa')
     end
   end

@@ -11,14 +11,6 @@
 Metrics/MethodLength:
   Max: 27
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/siign/authenticate.rb'
-
 # Offense count: 3
 RSpec/AnyInstance:
   Exclude:

@@ -99,7 +99,7 @@ module Siign
     end
 
     def login_tiime
-      access_token = Authenticate.get_or_fetch_token(ENV.fetch('TIIME_USER', nil), ENV.fetch('TIIME_PASSWORD', nil))
+      access_token = Authenticate.token(ENV.fetch('TIIME_USER', nil), ENV.fetch('TIIME_PASSWORD', nil))
       Tiime.bearer = access_token
       company = Tiime::Company.all.first
       Tiime.default_company_id = company.id
