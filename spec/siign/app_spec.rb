@@ -107,11 +107,14 @@ RSpec.describe Siign::App do
   end
 
   describe 'POST /webhook' do
+    before do
+      allow(Siign::Docage).to receive(:new).and_return(docage)
+      allow(Siign::Notification).to receive(:new).and_return(notification)
+    end
+
     it 'receive the webhook and send the success notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect(Siign::Docage).to receive(:new).and_return(docage)
       expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect(Siign::Notification).to receive(:new).and_return(notification)
       expect(notification).to receive(:notify).with(:signed, 'Test Quotation')
 
       post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
@@ -120,9 +123,7 @@ RSpec.describe Siign::App do
 
     it 'receive the webhook and send the refused notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect(Siign::Docage).to receive(:new).and_return(docage)
       expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect(Siign::Notification).to receive(:new).and_return(notification)
       expect(notification).to receive(:notify).with(:refused, 'Test Quotation')
 
       post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
@@ -130,7 +131,6 @@ RSpec.describe Siign::App do
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
-      expect(Siign::Docage).to receive(:new).and_return(docage)
       expect(docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
       post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
