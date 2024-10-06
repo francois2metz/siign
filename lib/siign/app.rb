@@ -14,6 +14,13 @@ module Siign
       'cancelled' => 'secondary'
     }.freeze
 
+    DOCAGE_TO_TIIME_STATUS = {
+      signed: 'accepted',
+      expired: 'cancelled',
+      refused: 'refused',
+      aborted: 'cancelled'
+    }.freeze
+
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
@@ -69,6 +76,7 @@ module Siign
       request.body.rewind
       data = JSON.parse request.body.read
       docage.get_transaction(data['Id'])
+      update_quote_status(data['Id'], data['Status'])
       Notification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
     rescue Faraday::ResourceNotFound
       halt 404
@@ -134,6 +142,18 @@ module Siign
         Country: customer.country.name,
         Mobile: customer.phone
       }
+    end
+
+    def update_quote_status(transaction_id, transaction_status)
+      quote_id = db.get_quote_by_transaction_id(transaction_id)
+      login_tiime
+      quote = ::Tiime::Quotation.find(id: quote_id)
+      status = Docage::DOCAGE_STATUS_TO_SYMBOL[transaction_status]
+
+      return unless DOCAGE_TO_TIIME_STATUS.keys.include?(status)
+
+      quote.status = DOCAGE_TO_TIIME_STATUS[status]
+      quote.update
     end
   end
 end

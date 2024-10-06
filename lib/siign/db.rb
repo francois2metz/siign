@@ -21,6 +21,13 @@ module Siign
       result.first.first
     end
 
+    def get_quote_by_transaction_id(transaction_id)
+      result = db.execute('SELECT quote_id FROM quote_transaction where transaction_id = ?', [transaction_id])
+      return nil if result.empty?
+
+      result.first.first
+    end
+
     def list_quotes_and_transactions
       db.execute('SELECT quote_id, transaction_id FROM quote_transaction')
     end

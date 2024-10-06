@@ -36,6 +36,19 @@ RSpec.describe Siign::Db do
     end
   end
 
+  describe '#get_quote_by_transaction_id' do
+    it 'returns the quote associated' do
+      db = described_class.new(':memory:')
+      db.associate_quote_and_transaction('1', '42')
+      expect(db.get_quote_by_transaction_id('42')).to eql('1')
+    end
+
+    it 'returns nil if there is no quote associated' do
+      db = described_class.new(':memory:')
+      expect(db.get_quote_by_transaction_id('42')).to be_nil
+    end
+  end
+
   describe '#list_quotes_and_transactions' do
     it 'returns an empty list' do
       db = described_class.new(':memory:')

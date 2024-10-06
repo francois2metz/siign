@@ -112,21 +112,56 @@ RSpec.describe Siign::App do
       allow(Siign::Notification).to receive(:new).and_return(notification)
     end
 
-    it 'receive the webhook and send the success notification' do
-      Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect(notification).to receive(:notify).with(:signed, 'Test Quotation')
+    [
+      {
+        docage_status: 5,
+        expected_quotation_status: 'accepted',
+        expected_notification_status: :signed
+      },
+      {
+        docage_status: 6,
+        expected_quotation_status: 'cancelled',
+        expected_notification_status: :expired
+      },
+      {
+        docage_status: 7,
+        expected_quotation_status: 'refused',
+        expected_notification_status: :refused
+      }, {
+        docage_status: 8,
+        expected_quotation_status: 'cancelled',
+        expected_notification_status: :aborted
+      }
+    ].each do |test|
+      docage_status = test[:docage_status]
+      expected_quotation_status = test[:expected_quotation_status]
+      expected_notification_status = test[:expected_notification_status]
 
-      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
-      expect(last_response).to be_ok
+      it "for status #{docage_status}, update the status to #{expected_quotation_status} and send the #{expected_notification_status} notification" do
+        Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
+        expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+        expect_tiime_login
+        quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
+        expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
+        expect(quotation).to receive(:update)
+        expect(notification).to receive(:notify).with(expected_notification_status, 'Test Quotation')
+
+        post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: docage_status, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+        expect(last_response).to be_ok
+        expect(quotation.status).to eql(expected_quotation_status)
+      end
     end
 
-    it 'receive the webhook and send the refused notification' do
+    it 'receive the webhook and dont update the quote' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
       expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect(notification).to receive(:notify).with(:refused, 'Test Quotation')
+      expect_tiime_login
+      quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
+      expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
+      expect(quotation).not_to receive(:update)
+      expect(notification).to receive(:notify).with(:active, 'Test Quotation')
 
-      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 3, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
