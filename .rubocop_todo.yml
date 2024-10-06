@@ -16,12 +16,6 @@ Metrics/MethodLength:
 RSpec/ExampleLength:
   Max: 59
 
-# Offense count: 25
-# Configuration parameters: .
-# SupportedStyles: have_received, receive
-RSpec/MessageSpies:
-  EnforcedStyle: receive
-
 # Offense count: 8
 RSpec/MultipleExpectations:
   Max: 9

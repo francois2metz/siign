@@ -15,3 +15,6 @@ require:
 
 AllCops:
   NewCops: enable
+
+RSpec/MessageSpies:
+  EnforcedStyle: receive
