@@ -150,6 +150,7 @@ RSpec.describe Siign::App do
       post '/login', password: tiime_password
       expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '3').and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                                                                               status: 'saved',
                                                                                                client: Tiime::Quotation.new({ id: 1 })))
       expect(Tiime::Quotation).to receive(:pdf).with(id: '3').and_return('pdftext')
       expect(Tiime::Customer).to receive(:find).with(id: 1).and_return(Tiime::Customer.new({ id: 1,
@@ -180,6 +181,18 @@ RSpec.describe Siign::App do
 
       expect(last_response.headers['location']).to eq('http://example.org/devis')
       expect(Siign::Db.new(db_path).get_transaction_by_quote_id('3')).to eq('iddocage')
+    end
+
+    it 'disallow when the quote status is not saved' do
+      post '/login', password: tiime_password
+      expect_tiime_login
+      expect(Tiime::Quotation).to receive(:find).with(id: '3').and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                                                                               status: 'accepted',
+                                                                                               client: Tiime::Quotation.new({ id: 1 })))
+      post '/devis/3'
+
+      expect(last_response).not_to be_ok
+      expect(last_response.status).to eq(403)
     end
   end
 end

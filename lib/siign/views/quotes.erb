@@ -10,13 +10,7 @@
      </div>
      <%
        transaction = @quotes_and_transactions.find {|e| e[0] == quote.id.to_s }
-       if transaction.nil?
-      %>
-     <form method="post" action="/devis/<%= quote.id %>">
-       <button type="submit" class="btn btn-primary btn-sm">Créer la transaction</button>
-     </form>
-     <%
-       else
+       if !!transaction
      %>
      <div class="form-group">
        <input type="text" readonly value="<%= url("/devis/#{quote.id}/#{transaction[1]}") %>">
@@ -26,6 +20,12 @@
          </svg>
        </button>
      </div>
+     <%
+       elsif quote.status == 'saved'
+     %>
+     <form method="post" action="/devis/<%= quote.id %>">
+       <button type="submit" class="btn btn-primary btn-sm">Créer la transaction</button>
+     </form>
      <%
        end
       %>
