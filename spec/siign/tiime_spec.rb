@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require 'siign/authenticate'
+require 'siign'
 
-RSpec.describe Siign::Authenticate do
+RSpec.describe Siign::Tiime do
   let(:faraday) { double }
 
   def expect_access_token(user, password, access_token)

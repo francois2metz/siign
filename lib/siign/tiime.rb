@@ -5,7 +5,7 @@ require 'faraday-cookie_jar'
 
 module Siign
   # Authenticate to Tiime API
-  class Authenticate
+  class Tiime
     class << self
       attr_writer :conn, :token
 
@@ -66,7 +66,7 @@ module Siign
         return unless @token
 
         begin
-          Tiime::User.me
+          ::Tiime::User.me
         rescue Flexirest::HTTPClientException
           @token = nil
         end

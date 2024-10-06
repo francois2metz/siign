@@ -36,7 +36,7 @@ module Siign
 
       login_tiime
 
-      @quotes = Tiime::Quotation.all
+      @quotes = ::Tiime::Quotation.all
       @quotes_and_transactions = db.list_quotes_and_transactions
       @title = 'Devis'
 
@@ -46,7 +46,7 @@ module Siign
     get '/devis/:id/:transactionid' do
       transaction = docage.get_transaction(params[:transactionid])
       login_tiime
-      quote = Tiime::Quotation.find(id: params[:id])
+      quote = ::Tiime::Quotation.find(id: params[:id])
 
       @transaction_member_id = transaction.body['MemberSummaries'].first['Id']
       @title = quote.title
@@ -71,10 +71,10 @@ module Siign
       login_tiime
 
       quote_id = params[:id]
-      quote = Tiime::Quotation.find(id: quote_id)
-      quote_pdf = Tiime::Quotation.pdf(id: quote_id)
-      customer = Tiime::Customer.find(id: quote.client.id)
-      contacts = Tiime::Contact.all(id: quote.client.id)
+      quote = ::Tiime::Quotation.find(id: quote_id)
+      quote_pdf = ::Tiime::Quotation.pdf(id: quote_id)
+      customer = ::Tiime::Customer.find(id: quote.client.id)
+      contacts = ::Tiime::Contact.all(id: quote.client.id)
 
       transaction = docage.create_full_transaction(
         quote.title,
@@ -100,10 +100,10 @@ module Siign
     end
 
     def login_tiime
-      access_token = Authenticate.token(ENV.fetch('TIIME_USER', nil), ENV.fetch('TIIME_PASSWORD', nil))
-      Tiime.bearer = access_token
-      company = Tiime::Company.all.first
-      Tiime.default_company_id = company.id
+      access_token = Tiime.token(ENV.fetch('TIIME_USER', nil), ENV.fetch('TIIME_PASSWORD', nil))
+      ::Tiime.bearer = access_token
+      company = ::Tiime::Company.all.first
+      ::Tiime.default_company_id = company.id
     end
 
     def logged?

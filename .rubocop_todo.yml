@@ -35,14 +35,14 @@ RSpec/MultipleExpectations:
 RSpec/StubbedMock:
   Exclude:
     - 'spec/siign/app_spec.rb'
-    - 'spec/siign/authenticate_spec.rb'
+    - 'spec/siign/tiime_spec.rb'
 
 # Offense count: 4
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
   Exclude:
     - 'spec/siign/app_spec.rb'
-    - 'spec/siign/authenticate_spec.rb'
+    - 'spec/siign/tiime_spec.rb'
 
 # Offense count: 13
 # This cop supports safe autocorrection (--autocorrect).

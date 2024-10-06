@@ -21,7 +21,7 @@ RSpec.describe Siign::App do
   end
 
   def expect_tiime_login
-    expect(Siign::Authenticate).to receive(:token)
+    expect(Siign::Tiime).to receive(:token)
     expect(Tiime::Company).to receive(:all).and_return([Tiime::Company.new(id: 42)])
   end
 
