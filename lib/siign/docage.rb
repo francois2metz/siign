@@ -4,6 +4,7 @@ require 'faraday'
 require 'faraday/multipart'
 
 module Siign
+  # Make API request to Docage
   class Docage
     DOCAGE_STATUS_TO_SYMBOL = {
       0 => :draft,

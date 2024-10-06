@@ -44,18 +44,6 @@ RSpec/VerifiedDoubles:
     - 'spec/siign/app_spec.rb'
     - 'spec/siign/authenticate_spec.rb'
 
-# Offense count: 5
-# Configuration parameters: AllowedConstants.
-Style/Documentation:
-  Exclude:
-    - 'spec/**/*'
-    - 'test/**/*'
-    - 'lib/siign.rb'
-    - 'lib/siign/app.rb'
-    - 'lib/siign/authenticate.rb'
-    - 'lib/siign/db.rb'
-    - 'lib/siign/docage.rb'
-
 # Offense count: 13
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.

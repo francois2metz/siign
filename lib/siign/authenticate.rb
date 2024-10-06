@@ -4,6 +4,7 @@ require 'faraday'
 require 'faraday-cookie_jar'
 
 module Siign
+  # Authenticate to Tiime API
   class Authenticate
     class << self
       attr_writer :conn, :token

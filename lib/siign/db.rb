@@ -3,6 +3,7 @@
 require 'sqlite3'
 
 module Siign
+  # Access to the sqlite database
   class Db
     def initialize(db_path)
       @db_path = db_path
