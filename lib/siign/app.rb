@@ -67,13 +67,11 @@ module Siign
       8 => :aborted
     }.freeze
 
-    post '/devis/:id/:transactionid' do
+    post '/webhook' do
       request.body.rewind
       data = JSON.parse request.body.read
-      docage.get_transaction(params[:transactionid])
-      login_tiime
-      quote = Tiime::Quotation.find(id: params[:id])
-      Notification.new.notify(DOCAGE_STATUS_TO_SYMBOL[data['Status']], quote.title)
+      docage.get_transaction(data['Id'])
+      Notification.new.notify(DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
     rescue Faraday::ResourceNotFound
       halt 404
     end
@@ -89,17 +87,23 @@ module Siign
       customer = Tiime::Customer.find(id: quote.client.id)
       contacts = Tiime::Contact.all(id: quote.client.id)
 
-      transaction = docage.create_full_transaction(quote.title, StringIO.new(quote_pdf), {
-                                                     Email: customer.email,
-                                                     FirstName: contacts.first.firstname,
-                                                     LastName: contacts.first.lastname,
-                                                     Address1: customer.address,
-                                                     Address2: customer.address_complement,
-                                                     City: customer.city,
-                                                     ZipCode: customer.postal_code,
-                                                     Country: customer.country.name,
-                                                     Mobile: customer.phone
-                                                   }, is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false')
+      transaction = docage.create_full_transaction(
+        quote.title,
+        StringIO.new(quote_pdf),
+        {
+          Email: customer.email,
+          FirstName: contacts.first.firstname,
+          LastName: contacts.first.lastname,
+          Address1: customer.address,
+          Address2: customer.address_complement,
+          City: customer.city,
+          ZipCode: customer.postal_code,
+          Country: customer.country.name,
+          Mobile: customer.phone
+        },
+        is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false',
+        webhook: url('/webhook')
+      )
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])
 

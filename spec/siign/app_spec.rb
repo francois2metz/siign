@@ -100,33 +100,29 @@ RSpec.describe Siign::App do
     end
   end
 
-  describe 'POST /devis/:id/:transactionid' do
+  describe 'POST /webhook' do
     it 'receive the webhook and send the success notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect_tiime_login
-      expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect_any_instance_of(Siign::Notification).to receive(:notify).with(:signed, 'Test Quotation')
 
-      post '/devis/2/iddocage', JSON.generate({ Status: 5 }), 'CONTENT_TYPE' => 'application/json'
+      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
     it 'receive the webhook and send the refused notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect_tiime_login
-      expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect_any_instance_of(Siign::Notification).to receive(:notify).with(:refused, 'Test Quotation')
 
-      post '/devis/2/iddocage', JSON.generate({ Status: 7 }), 'CONTENT_TYPE' => 'application/json'
+      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
       expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
-      post '/devis/2/iddocage', JSON.generate({ Status: 5 }), 'CONTENT_TYPE' => 'application/json'
+      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).not_to be_ok
       expect(last_response.status).to eq(404)
     end
@@ -154,7 +150,7 @@ RSpec.describe Siign::App do
                                                                                         ZipCode: '75000',
                                                                                         Country: 'France',
                                                                                         Mobile: '+33600000000'
-                                                                                      }, is_test: false).and_return(double(body: { 'Id' => 'iddocage' }))
+                                                                                      }, is_test: false, webhook: 'http://example.org/webhook').and_return(double(body: { 'Id' => 'iddocage' }))
       post '/devis/3'
 
       expect(last_response.headers['location']).to eq('http://example.org/devis')

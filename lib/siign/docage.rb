@@ -10,8 +10,8 @@ module Siign
       @api_key = api_key
     end
 
-    def create_full_transaction(name, fileio, client, is_test: false)
-      conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client, is_test: is_test))
+    def create_full_transaction(name, fileio, client, is_test: false, webhook: nil)
+      conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client, is_test: is_test, webhook: webhook))
     end
 
     def get_transaction(id)
@@ -30,27 +30,27 @@ module Siign
       end
     end
 
-    def transaction_payload(name, fileio, client, is_test:)
+    def transaction_payload(name, fileio, client, is_test:, webhook:)
       {
         Transaction: JSON.generate({
-                                     Name: name,
-                                     IsTest: is_test,
-                                     TransactionFiles: [
-                                       {
-                                         Filename: 'devis.pdf',
-                                         FriendlyName: 'Devis'
-                                       }
-                                     ],
-                                     TransactionMembers: [
-                                       {
-                                         NotifyInvitation: false,
-                                         NotifySignature: false,
-                                         NotifyRefusal: false,
-                                         NotifyCompletion: false,
-                                         FriendlyName: 'Client'
-                                       }
-                                     ]
-                                   }),
+          Name: name,
+          IsTest: is_test,
+          TransactionFiles: [
+            {
+              Filename: 'devis.pdf',
+              FriendlyName: 'Devis'
+            }
+          ],
+          TransactionMembers: [
+            {
+              NotifyInvitation: false,
+              NotifySignature: false,
+              NotifyRefusal: false,
+              NotifyCompletion: false,
+              FriendlyName: 'Client'
+            }
+          ]
+        }.tap { |t| t[:Webhook] = webhook unless webhook.nil? }),
         Client: JSON.generate(client),
         Devis: Faraday::Multipart::FilePart.new(fileio, 'application/pdf')
       }

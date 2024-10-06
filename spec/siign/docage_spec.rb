@@ -29,7 +29,8 @@ RSpec.describe Siign::Docage do
                                            NotifyCompletion: false,
                                            FriendlyName: 'Client'
                                          }
-                                       ]
+                                       ],
+                                       Webhook: 'https://example.net'
                                      }),
           Client: JSON.generate({
                                   Email: 'francois@example.net',
@@ -58,7 +59,8 @@ RSpec.describe Siign::Docage do
           ZipCode: '75000',
           Country: 'FRANCE',
           Mobile: '+33XXXXXXXXX'
-        }
+        },
+        webhook: 'https://example.net'
       )
     end
 
