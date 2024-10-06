@@ -11,11 +11,6 @@
 Metrics/MethodLength:
   Max: 27
 
-# Offense count: 3
-RSpec/AnyInstance:
-  Exclude:
-    - 'spec/siign/app_spec.rb'
-
 # Offense count: 8
 # Configuration parameters: CountAsOne.
 RSpec/ExampleLength:

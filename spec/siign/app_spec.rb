@@ -13,6 +13,8 @@ RSpec.describe Siign::App do
   end
   let(:db_path) { '/tmp/test.sqlite' }
   let(:tiime_password) { 'test' }
+  let(:docage) { instance_double(Siign::Docage) }
+  let(:notification) { instance_double(Siign::Notification) }
 
   before do
     FileUtils.rm db_path, force: true
@@ -84,7 +86,8 @@ RSpec.describe Siign::App do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
       expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
-      expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
 
       get '/devis/2/iddocage'
       expect(last_response).to be_ok
@@ -92,7 +95,8 @@ RSpec.describe Siign::App do
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
-      expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
       get '/devis/2/iddocage'
       expect(last_response).not_to be_ok
@@ -103,8 +107,10 @@ RSpec.describe Siign::App do
   describe 'POST /webhook' do
     it 'receive the webhook and send the success notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect_any_instance_of(Siign::Notification).to receive(:notify).with(:signed, 'Test Quotation')
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+      expect(Siign::Notification).to receive(:new).and_return(notification)
+      expect(notification).to receive(:notify).with(:signed, 'Test Quotation')
 
       post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
@@ -112,15 +118,18 @@ RSpec.describe Siign::App do
 
     it 'receive the webhook and send the refused notification' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
-      expect_any_instance_of(Siign::Notification).to receive(:notify).with(:refused, 'Test Quotation')
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+      expect(Siign::Notification).to receive(:new).and_return(notification)
+      expect(notification).to receive(:notify).with(:refused, 'Test Quotation')
 
       post '/webhook', JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
-      expect_any_instance_of(Siign::Docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
       post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).not_to be_ok
@@ -140,17 +149,18 @@ RSpec.describe Siign::App do
       expect(Tiime::Contact).to receive(:all).with(id: 1).and_return([Tiime::Contact.new({ firstname: 'François',
                                                                                            lastname: 'de Metz' })])
 
-      expect_any_instance_of(Siign::Docage).to receive(:create_full_transaction).with('Test Quotation', instance_of(StringIO), {
-                                                                                        Email: 'francois@example.net',
-                                                                                        FirstName: 'François',
-                                                                                        LastName: 'de Metz',
-                                                                                        Address1: '2 avenue de l\'observatoire',
-                                                                                        Address2: nil,
-                                                                                        City: 'Paris',
-                                                                                        ZipCode: '75000',
-                                                                                        Country: 'France',
-                                                                                        Mobile: '+33600000000'
-                                                                                      }, is_test: false, webhook: 'http://example.org/webhook').and_return(double(body: { 'Id' => 'iddocage' }))
+      expect(Siign::Docage).to receive(:new).and_return(docage)
+      expect(docage).to receive(:create_full_transaction).with('Test Quotation', instance_of(StringIO), {
+                                                                 Email: 'francois@example.net',
+                                                                 FirstName: 'François',
+                                                                 LastName: 'de Metz',
+                                                                 Address1: '2 avenue de l\'observatoire',
+                                                                 Address2: nil,
+                                                                 City: 'Paris',
+                                                                 ZipCode: '75000',
+                                                                 Country: 'France',
+                                                                 Mobile: '+33600000000'
+                                                               }, is_test: false, webhook: 'http://example.org/webhook').and_return(double(body: { 'Id' => 'iddocage' }))
       post '/devis/3'
 
       expect(last_response.headers['location']).to eq('http://example.org/devis')
