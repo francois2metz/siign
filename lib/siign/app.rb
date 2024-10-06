@@ -12,7 +12,7 @@ module Siign
     not_found do
       @title = 'Page non trouvée'
 
-      erb :error_404, layout: :default
+      erb :error404, layout: :default
     end
 
     get '/login' do
