@@ -5,6 +5,18 @@ require 'faraday/multipart'
 
 module Siign
   class Docage
+    DOCAGE_STATUS_TO_SYMBOL = {
+      0 => :draft,
+      1 => :scheduled,
+      2 => :waitinginformations,
+      3 => :active,
+      4 => :validated,
+      5 => :signed,
+      6 => :expired,
+      7 => :refused,
+      8 => :aborted
+    }.freeze
+
     def initialize(username, api_key)
       @username = username
       @api_key = api_key

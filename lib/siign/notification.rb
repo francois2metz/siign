@@ -3,6 +3,7 @@
 require 'faraday'
 
 module Siign
+  # Send http notification
   class Notification
     def notify(status, quote_title)
       notification_url = ENV.fetch('NOTIFICATION_URL', nil)

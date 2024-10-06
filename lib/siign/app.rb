@@ -55,23 +55,11 @@ module Siign
       halt 404
     end
 
-    DOCAGE_STATUS_TO_SYMBOL = {
-      0 => :draft,
-      1 => :scheduled,
-      2 => :waitinginformations,
-      3 => :active,
-      4 => :validated,
-      5 => :signed,
-      6 => :expired,
-      7 => :refused,
-      8 => :aborted
-    }.freeze
-
     post '/webhook' do
       request.body.rewind
       data = JSON.parse request.body.read
       docage.get_transaction(data['Id'])
-      Notification.new.notify(DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
+      Notification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
     rescue Faraday::ResourceNotFound
       halt 404
     end
@@ -90,17 +78,7 @@ module Siign
       transaction = docage.create_full_transaction(
         quote.title,
         StringIO.new(quote_pdf),
-        {
-          Email: customer.email,
-          FirstName: contacts.first.firstname,
-          LastName: contacts.first.lastname,
-          Address1: customer.address,
-          Address2: customer.address_complement,
-          City: customer.city,
-          ZipCode: customer.postal_code,
-          Country: customer.country.name,
-          Mobile: customer.phone
-        },
+        docage_client_payload(customer, contacts),
         is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false',
         webhook: url('/webhook')
       )
@@ -129,6 +107,20 @@ module Siign
 
     def logged?
       session[:logged] == true
+    end
+
+    def docage_client_payload(customer, contacts)
+      {
+        Email: customer.email,
+        FirstName: contacts.first.firstname,
+        LastName: contacts.first.lastname,
+        Address1: customer.address,
+        Address2: customer.address_complement,
+        City: customer.city,
+        ZipCode: customer.postal_code,
+        Country: customer.country.name,
+        Mobile: customer.phone
+      }
     end
   end
 end
