@@ -57,6 +57,8 @@ module Siign
     end
 
     post '/webhook' do
+      halt 403 unless params['secret'] == ENV.fetch('WEBHOOK_SECRET', nil)
+
       request.body.rewind
       data = JSON.parse request.body.read
       docage.get_transaction(data['Id'])
@@ -81,7 +83,7 @@ module Siign
         StringIO.new(quote_pdf),
         docage_client_payload(customer, contacts),
         is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false',
-        webhook: url('/webhook')
+        webhook: url("/webhook?secret=#{ENV.fetch('WEBHOOK_SECRET', nil)}")
       )
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])

@@ -13,6 +13,7 @@ RSpec.describe Siign::App do
   end
   let(:db_path) { '/tmp/test.sqlite' }
   let(:tiime_password) { 'test' }
+  let(:webhook_secret) { 'h4ck3r' }
   let(:docage) { instance_double(Siign::Docage) }
   let(:notification) { instance_double(Siign::Notification) }
 
@@ -20,6 +21,7 @@ RSpec.describe Siign::App do
     FileUtils.rm db_path, force: true
     ENV['DB_PATH'] = db_path
     ENV['TIIME_PASSWORD'] = tiime_password
+    ENV['WEBHOOK_SECRET'] = webhook_secret
   end
 
   def expect_tiime_login
@@ -112,7 +114,7 @@ RSpec.describe Siign::App do
       expect(Siign::Notification).to receive(:new).and_return(notification)
       expect(notification).to receive(:notify).with(:signed, 'Test Quotation')
 
-      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
@@ -123,7 +125,7 @@ RSpec.describe Siign::App do
       expect(Siign::Notification).to receive(:new).and_return(notification)
       expect(notification).to receive(:notify).with(:refused, 'Test Quotation')
 
-      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 7, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
@@ -131,9 +133,15 @@ RSpec.describe Siign::App do
       expect(Siign::Docage).to receive(:new).and_return(docage)
       expect(docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
-      post '/webhook', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
       expect(last_response).not_to be_ok
       expect(last_response.status).to eq(404)
+    end
+
+    it 'returns a 403 when the secret doesnt matche' do
+      post '/webhook?secret=bad', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      expect(last_response).not_to be_ok
+      expect(last_response.status).to eq(403)
     end
   end
 
@@ -150,17 +158,24 @@ RSpec.describe Siign::App do
                                                                                            lastname: 'de Metz' })])
 
       expect(Siign::Docage).to receive(:new).and_return(docage)
-      expect(docage).to receive(:create_full_transaction).with('Test Quotation', instance_of(StringIO), {
-                                                                 Email: 'francois@example.net',
-                                                                 FirstName: 'François',
-                                                                 LastName: 'de Metz',
-                                                                 Address1: '2 avenue de l\'observatoire',
-                                                                 Address2: nil,
-                                                                 City: 'Paris',
-                                                                 ZipCode: '75000',
-                                                                 Country: 'France',
-                                                                 Mobile: '+33600000000'
-                                                               }, is_test: false, webhook: 'http://example.org/webhook').and_return(double(body: { 'Id' => 'iddocage' }))
+      expect(docage).to receive(:create_full_transaction)
+        .with(
+          'Test Quotation',
+          instance_of(StringIO),
+          {
+            Email: 'francois@example.net',
+            FirstName: 'François',
+            LastName: 'de Metz',
+            Address1: '2 avenue de l\'observatoire',
+            Address2: nil,
+            City: 'Paris',
+            ZipCode: '75000',
+            Country: 'France',
+            Mobile: '+33600000000'
+          },
+          is_test: false,
+          webhook: "http://example.org/webhook?secret=#{webhook_secret}"
+        ).and_return(double(body: { 'Id' => 'iddocage' }))
       post '/devis/3'
 
       expect(last_response.headers['location']).to eq('http://example.org/devis')

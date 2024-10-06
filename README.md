@@ -19,6 +19,8 @@ DOCAGE_API_KEY=
 DOCAGE_TEST_MODE=true
 # The path to the sqlite database
 DB_PATH=
+# The webhook secret to protect the endpoint
+WEBHOOK_SECRET=myimportantsecrettonotallowh4ck3rtosendnotification
 # The notification URL when the quote is signed, refused, expired or aborted ${msg} will be replaced by the corresponding message
 NOTIFICATION_URL=https://xxx.com?msg=${msg}
 ```
