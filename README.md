@@ -8,7 +8,7 @@ Features:
 - create Docage transaction from Tiime quotes
 - Provide a simple interface for customers to sign quotes
 - Update quote status to Tiime
-- Receice notification once the quote change
+- Receive notification once the quote change
 
 ## Configuration
 
