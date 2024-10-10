@@ -2,9 +2,7 @@ FROM ruby:3.3-bookworm
 
 RUN set -eux ;\
     DEBIAN_FRONTEND=noninteractive apt-get update ;\
-    DEBIAN_FRONTEND=noninteractive apt-get install  -y --no-install-recommends \
-        sqlite3 \
-        sqlite3-pcre
+    DEBIAN_FRONTEND=noninteractive apt-get install  -y --no-install-recommends sqlite3
 
 WORKDIR /code/siign
 
