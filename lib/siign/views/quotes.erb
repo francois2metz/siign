@@ -1,34 +1,40 @@
 <h1>Devis</h1>
-<ul class="list-group">
+<ul class="list-group list-group-flush">
  <% @quotes.each do |quote| %>
-   <li class="list-group-item d-flex justify-content-between align-items-start">
-     <div class="ms-2 me-auto">
+   <li class="list-group-item">
+     <div>
        <span class="badge text-bg-<%= QUOTE_STATUS_TO_BOOTSTRAP[quote.status] %>"><%= quote.status %></span>
        <span class="badge text-bg-secondary"><%= quote.emission_date %></span>
        <%= quote.title %>
        <span class="badge text-bg-info"><%= quote.total_excluding_taxes %>€</span>
      </div>
-     <%
-       transaction = @quotes_and_transactions.find {|e| e[0] == quote.id.to_s }
-       if !!transaction
-     %>
-     <div class="form-group">
-       <input type="text" readonly value="<%= url("/devis/#{quote.id}/#{transaction[1]}") %>">
-       <button type="button" onclick="navigator.clipboard.writeText('<%= url("/devis/#{quote.id}/#{transaction[1]}") %>');">
-         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-             <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6ZM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2Z"/>
-         </svg>
-       </button>
+     <div class="d-flex justify-content-end mt-2">
+       <%
+         transaction = @quotes_and_transactions.find {|e| e[0] == quote.id.to_s }
+         if !!transaction
+       %>
+       <div class="row">
+         <div class="col-auto">
+           <input class="form-control" type="text" readonly value="<%= url("/devis/#{quote.id}/#{transaction[1]}") %>">
+         </div>
+         <div class="col-auto">
+           <button class="btn btn-primary btn-sm" type="button" onclick="navigator.clipboard.writeText('<%= url("/devis/#{quote.id}/#{transaction[1]}") %>');">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                 <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6ZM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2Z"/>
+             </svg>
+           </button>
+           </div>
+       </div>
+       <%
+         elsif quote.status == 'saved'
+       %>
+       <form method="post" action="/devis/<%= quote.id %>">
+         <button type="submit" class="btn btn-primary btn-sm">Créer la transaction</button>
+       </form>
+       <%
+         end
+       %>
      </div>
-     <%
-       elsif quote.status == 'saved'
-     %>
-     <form method="post" action="/devis/<%= quote.id %>">
-       <button type="submit" class="btn btn-primary btn-sm">Créer la transaction</button>
-     </form>
-     <%
-       end
-      %>
    </li>
  <% end %>
 </ul>
