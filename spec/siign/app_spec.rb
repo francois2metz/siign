@@ -89,7 +89,9 @@ RSpec.describe Siign::App do
       expect_tiime_login
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(Tiime::Quotation.new(title: 'Test Quotation'))
       expect(Siign::Docage).to receive(:new).and_return(docage)
-      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+      expect(docage).to receive(:get_transaction)
+        .with('iddocage')
+        .and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
 
       get '/devis/2/iddocage'
       expect(last_response).to be_ok
@@ -134,47 +136,59 @@ RSpec.describe Siign::App do
       }
     ].each do |test|
       docage_status = test[:docage_status]
-      expected_quotation_status = test[:expected_quotation_status]
-      expected_notification_status = test[:expected_notification_status]
+      expected_quotation = test[:expected_quotation_status]
+      expected_notification = test[:expected_notification_status]
 
-      it "for status #{docage_status}, update the status to #{expected_quotation_status} and send the #{expected_notification_status} notification" do
+      it "for status: #{docage_status}, update status: #{expected_quotation}, notification: #{expected_notification}" do
         Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-        expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+        expect(docage).to receive(:get_transaction)
+          .with('iddocage')
+          .and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
         expect_tiime_login
         quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
         expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
         expect(quotation).to receive(:update)
-        expect(notification).to receive(:notify).with(expected_notification_status, 'Test Quotation')
+        expect(notification).to receive(:notify).with(expected_notification, 'Test Quotation')
 
-        post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: docage_status, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+        post "/webhook?secret=#{webhook_secret}",
+             JSON.generate({ Id: 'iddocage', Status: docage_status, Name: 'Test Quotation' }),
+             'CONTENT_TYPE' => 'application/json'
         expect(last_response).to be_ok
-        expect(quotation.status).to eql(expected_quotation_status)
+        expect(quotation.status).to eql(expected_quotation)
       end
     end
 
     it 'receive the webhook and dont update the quote' do
       Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
-      expect(docage).to receive(:get_transaction).with('iddocage').and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
+      expect(docage).to receive(:get_transaction)
+        .with('iddocage')
+        .and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
       expect_tiime_login
       quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
       expect(quotation).not_to receive(:update)
       expect(notification).to receive(:notify).with(:active, 'Test Quotation')
 
-      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 3, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}",
+           JSON.generate({ Id: 'iddocage', Status: 3, Name: 'Test Quotation' }),
+           'CONTENT_TYPE' => 'application/json'
       expect(last_response).to be_ok
     end
 
     it 'returns a 404 when the docage id doesnt exist' do
       expect(docage).to receive(:get_transaction).with('iddocage').and_raise(Faraday::ResourceNotFound)
 
-      post "/webhook?secret=#{webhook_secret}", JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post "/webhook?secret=#{webhook_secret}",
+           JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }),
+           'CONTENT_TYPE' => 'application/json'
       expect(last_response).not_to be_ok
       expect(last_response.status).to eq(404)
     end
 
     it 'returns a 403 when the secret doesnt matche' do
-      post '/webhook?secret=bad', JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }), 'CONTENT_TYPE' => 'application/json'
+      post '/webhook?secret=bad',
+           JSON.generate({ Id: 'iddocage', Status: 5, Name: 'Test Quotation' }),
+           'CONTENT_TYPE' => 'application/json'
       expect(last_response).not_to be_ok
       expect(last_response.status).to eq(403)
     end
@@ -184,12 +198,22 @@ RSpec.describe Siign::App do
     it 'create the docage transaction when connected' do
       post '/login', password: tiime_password
       expect_tiime_login
-      expect(Tiime::Quotation).to receive(:find).with(id: '3').and_return(Tiime::Quotation.new(title: 'Test Quotation',
-                                                                                               status: 'saved',
-                                                                                               client: Tiime::Quotation.new({ id: 1 })))
+      expect(Tiime::Quotation).to receive(:find)
+        .with(id: '3')
+        .and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                         status: 'saved',
+                                         client: Tiime::Quotation.new({ id: 1 })))
       expect(Tiime::Quotation).to receive(:pdf).with(id: '3').and_return('pdftext')
-      expect(Tiime::Customer).to receive(:find).with(id: 1).and_return(Tiime::Customer.new({ id: 1,
-                                                                                             email: 'francois@example.net', address: '2 avenue de l\'observatoire', address_complement: nil, city: 'Paris', postal_code: '75000', country: Tiime::Customer.new(name: 'France'), phone: '+33600000000' }))
+      expect(Tiime::Customer).to receive(:find)
+        .with(id: 1)
+        .and_return(Tiime::Customer.new({ id: 1,
+                                          email: 'francois@example.net',
+                                          address: '2 avenue de l\'observatoire',
+                                          address_complement: nil,
+                                          city: 'Paris',
+                                          postal_code: '75000',
+                                          country: Tiime::Customer.new(name: 'France'),
+                                          phone: '+33600000000' }))
       expect(Tiime::Contact).to receive(:all).with(id: 1).and_return([Tiime::Contact.new({ firstname: 'François',
                                                                                            lastname: 'de Metz' })])
 
@@ -221,9 +245,11 @@ RSpec.describe Siign::App do
     it 'disallow when the quote status is not saved' do
       post '/login', password: tiime_password
       expect_tiime_login
-      expect(Tiime::Quotation).to receive(:find).with(id: '3').and_return(Tiime::Quotation.new(title: 'Test Quotation',
-                                                                                               status: 'accepted',
-                                                                                               client: Tiime::Quotation.new({ id: 1 })))
+      expect(Tiime::Quotation).to receive(:find)
+        .with(id: '3')
+        .and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                         status: 'accepted',
+                                         client: Tiime::Quotation.new({ id: 1 })))
       post '/devis/3'
 
       expect(last_response).not_to be_ok

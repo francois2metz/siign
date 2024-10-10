@@ -17,7 +17,7 @@ AllCops:
   NewCops: enable
 
 Metrics/MethodLength:
-  CountAsOne:  ['array', 'hash', 'heredoc', 'method_call']
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
 
 RSpec/MessageSpies:
   EnforcedStyle: receive

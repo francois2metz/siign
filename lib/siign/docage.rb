@@ -24,7 +24,10 @@ module Siign
     end
 
     def create_full_transaction(name, fileio, client, is_test: false, webhook: nil)
-      conn.post('/Transactions/CreateFullTransaction', transaction_payload(name, fileio, client, is_test: is_test, webhook: webhook))
+      conn.post(
+        '/Transactions/CreateFullTransaction',
+        transaction_payload(name, fileio, client, is_test: is_test, webhook: webhook)
+      )
     end
 
     def get_transaction(id)

@@ -20,20 +20,26 @@ RSpec.describe Siign::Tiime do
         origin: 'https://apps.tiime.fr'
       }
     ).and_return(double(body: { 'login_ticket' => 'lll' }))
-    expect(faraday).to receive(:get).with(
-      '/authorize',
-      {
-        client_id: 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
-        response_type: 'token id_token',
-        redirect_uri: "https://apps.tiime.fr/auth-callback?ctx-email=#{user}&login_initiator=user",
-        scope: 'openid email',
-        audience: 'https://chronos/',
-        realm: 'Chronos-prod-db',
-        state: 'state',
-        nonce: 'nonce',
-        login_ticket: 'lll'
-      }
-    ).and_return(double(headers: { 'location' => "https://apps.tiime.fr/auth-callback?ctx-email=#{user}&login_initiator=user#access_token=#{access_token}&scope=a&otherparams=a" }))
+    expect(faraday).to receive(:get)
+      .with(
+        '/authorize',
+        {
+          client_id: 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
+          response_type: 'token id_token',
+          redirect_uri: "https://apps.tiime.fr/auth-callback?ctx-email=#{user}&login_initiator=user",
+          scope: 'openid email',
+          audience: 'https://chronos/',
+          realm: 'Chronos-prod-db',
+          state: 'state',
+          nonce: 'nonce',
+          login_ticket: 'lll'
+        }
+      )
+      .and_return(
+        double(headers: {
+                 'location' => "https://apps.tiime.fr/auth-callback?ctx-email=#{user}&login_initiator=user#access_token=#{access_token}&scope=a&otherparams=a"
+               })
+      )
   end
 
   before do
