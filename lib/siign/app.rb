@@ -31,6 +31,7 @@ module Siign
     end
 
     get '/login' do
+      return redirect('/devis') if logged?
       @title = 'Connexion'
 
       erb :login, layout: :default

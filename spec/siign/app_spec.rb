@@ -42,6 +42,14 @@ RSpec.describe Siign::App do
       get '/login'
       expect(last_response).to be_ok
     end
+
+    it 'redirect if logged' do
+      post '/login', password: tiime_password
+
+      get '/login'
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['location']).to eq('http://example.org/devis')
+    end
   end
 
   describe 'POST /login' do
