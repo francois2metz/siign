@@ -38,7 +38,7 @@ module Siign
 
     post '/' do
       @title = 'Siign - Signature des devis Tiime électroniquement'
-      Notification.new.notify("#{params[:email]} souhaite être contacté a propos de Siign")
+      Notification.new.notify("#{params[:email]} souhaite être contacté a propos de Siign") unless params[:email].empty?
 
       erb :notification_done, layout: :default
     end

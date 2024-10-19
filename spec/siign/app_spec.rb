@@ -48,6 +48,15 @@ RSpec.describe Siign::App do
       expect(last_response).to be_ok
       expect(last_response.status).to eq(200)
     end
+
+    it 'dont send the notification if the email is empty' do
+      allow(Siign::Notification).to receive(:new).and_return(notification)
+      expect(notification).not_to receive(:notify)
+
+      post '/', email: ''
+      expect(last_response).to be_ok
+      expect(last_response.status).to eq(200)
+    end
   end
 
   describe 'GET /404' do
