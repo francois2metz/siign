@@ -30,8 +30,22 @@ module Siign
       erb :error404, layout: :default
     end
 
+    get '/' do
+      @title = 'Siign - Signature des devis Tiime électroniquement'
+
+      erb :index, layout: :default
+    end
+
+    post '/' do
+      @title = 'Siign - Signature des devis Tiime électroniquement'
+      Notification.new.notify("#{params[:email]} souhaite être contacté a propos de Siign")
+
+      erb :notification_done, layout: :default
+    end
+
     get '/login' do
       return redirect('/devis') if logged?
+
       @title = 'Connexion'
 
       erb :login, layout: :default

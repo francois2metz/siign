@@ -30,8 +30,29 @@ RSpec.describe Siign::App do
   end
 
   describe 'GET /' do
-    it 'returns a 404' do
+    it 'returns a 200' do
       get '/'
+      expect(last_response).to be_ok
+      expect(last_response.status).to eq(200)
+    end
+  end
+
+  describe 'POST /' do
+    let(:notification) { instance_double(Siign::Notification) }
+
+    it 'returns a 200 and send a notification' do
+      allow(Siign::Notification).to receive(:new).and_return(notification)
+      expect(notification).to receive(:notify).with('test@example.net souhaite être contacté a propos de Siign')
+
+      post '/', email: 'test@example.net'
+      expect(last_response).to be_ok
+      expect(last_response.status).to eq(200)
+    end
+  end
+
+  describe 'GET /404' do
+    it 'returns a 404' do
+      get '/404'
       expect(last_response).not_to be_ok
       expect(last_response.status).to eq(404)
     end
