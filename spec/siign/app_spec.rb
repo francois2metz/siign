@@ -15,7 +15,7 @@ RSpec.describe Siign::App do
   let(:tiime_password) { 'test' }
   let(:webhook_secret) { 'h4ck3r' }
   let(:docage) { instance_double(Siign::Docage) }
-  let(:notification) { instance_double(Siign::Notification) }
+  let(:quote_notification) { instance_double(Siign::QuoteNotification) }
 
   before do
     FileUtils.rm db_path, force: true
@@ -119,7 +119,7 @@ RSpec.describe Siign::App do
   describe 'POST /webhook' do
     before do
       allow(Siign::Docage).to receive(:new).and_return(docage)
-      allow(Siign::Notification).to receive(:new).and_return(notification)
+      allow(Siign::QuoteNotification).to receive(:new).and_return(quote_notification)
     end
 
     [
@@ -156,7 +156,7 @@ RSpec.describe Siign::App do
         quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
         expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
         expect(quotation).to receive(:update)
-        expect(notification).to receive(:notify).with(expected_notification, 'Test Quotation')
+        expect(quote_notification).to receive(:notify).with(expected_notification, 'Test Quotation')
 
         post "/webhook?secret=#{webhook_secret}",
              JSON.generate({ Id: 'iddocage', Status: docage_status, Name: 'Test Quotation' }),
@@ -175,7 +175,7 @@ RSpec.describe Siign::App do
       quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
       expect(quotation).not_to receive(:update)
-      expect(notification).to receive(:notify).with(:active, 'Test Quotation')
+      expect(quote_notification).to receive(:notify).with(:active, 'Test Quotation')
 
       post "/webhook?secret=#{webhook_secret}",
            JSON.generate({ Id: 'iddocage', Status: 3, Name: 'Test Quotation' }),

@@ -78,7 +78,7 @@ module Siign
       data = JSON.parse request.body.read
       docage.get_transaction(data['Id'])
       update_quote_status(data['Id'], data['Status'])
-      Notification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
+      QuoteNotification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
     rescue Faraday::ResourceNotFound
       halt 404
     end

@@ -13,49 +13,23 @@ RSpec.describe Siign::Notification do
       ENV['NOTIFICATION_URL'] = 'http://example.net/?message=${msg}'
     end
 
-    it 'notify the signed case' do
-      expect_notification_message 'Bonne nouvelle, devis Test Quotation signé !'
+    it 'notify text' do
+      expect_notification_message 'Hello world !'
 
-      described_class.new.notify :signed, 'Test Quotation'
-    end
-
-    it 'notify the refused case' do
-      expect_notification_message 'Mauvaise nouvelle, devis Test Quotation refusé !'
-
-      described_class.new.notify :refused, 'Test Quotation'
-    end
-
-    it 'notify the expired case' do
-      expect_notification_message 'Sale nouvelle, devis Test Quotation expiré !'
-
-      described_class.new.notify :expired, 'Test Quotation'
-    end
-
-    it 'notify the aborted case' do
-      expect_notification_message 'Sale nouvelle, devis Test Quotation annulé !'
-
-      described_class.new.notify :aborted, 'Test Quotation'
+      described_class.new.notify 'Hello world !'
     end
 
     it 'dont notify if there is no NOTIFICATION_URL' do
       ENV.delete('NOTIFICATION_URL')
       expect(Faraday).not_to receive(:get)
 
-      described_class.new.notify :signed, 'Test Quotation'
+      described_class.new.notify 'Hello World'
     end
 
-    %i[
-      draft
-      scheduled
-      waitinginformations
-      active
-      validated
-    ].each do |status|
-      it "notify nothing in the #{status} case" do
-        expect(Faraday).not_to receive(:get)
+    it 'dont notify if msg is nil' do
+      expect(Faraday).not_to receive(:get)
 
-        described_class.new.notify status, 'Test Quotation'
-      end
+      described_class.new.notify nil
     end
   end
 end
