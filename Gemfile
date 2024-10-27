@@ -2,17 +2,17 @@
 
 source 'https://rubygems.org'
 
-gem 'dotenv'
-gem 'faraday'
-gem 'faraday-cookie_jar'
-gem 'faraday-multipart'
-gem 'puma'
-gem 'sinatra'
-gem 'sqlite3'
+gem 'dotenv', '~> 3.1'
+gem 'faraday', '~> 2.12'
+gem 'faraday-cookie_jar', '~> 0.0.7'
+gem 'faraday-multipart', '~> 1.0'
+gem 'puma', '~> 6.4'
+gem 'sinatra', '~> 4.0'
+gem 'sqlite3', '~> 2.1'
 gem 'tiime', github: 'francois2metz/ruby-tiime'
 
 group :test, :development do
-  gem 'rspec'
-  gem 'rubocop'
-  gem 'rubocop-rspec'
+  gem 'rspec', '~> 3.13'
+  gem 'rubocop', '~> 1.67'
+  gem 'rubocop-rspec', '~> 3.2'
 end
