@@ -83,4 +83,16 @@ RSpec.describe Siign::Tiime do
       expect(access_token2).to eq('aaa')
     end
   end
+
+  describe '#can_create_transaction?' do
+    it 'returns true when the status is saved' do
+      quote = Tiime::Quotation.new(status: 'saved')
+      expect(described_class.can_create_transaction?(quote)).to be true
+    end
+
+    it 'returns true when the status is accepted' do
+      quote = Tiime::Quotation.new(status: 'accepted')
+      expect(described_class.can_create_transaction?(quote)).to be false
+    end
+  end
 end

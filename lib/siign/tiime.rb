@@ -26,6 +26,10 @@ module Siign
         @token ||= authenticate(user, password)
       end
 
+      def can_create_transaction?(quote)
+        quote.status == 'saved'
+      end
+
       private
 
       def conn

@@ -105,7 +105,7 @@ module Siign
       quote_id = params[:id]
       quote = ::Tiime::Quotation.find(id: quote_id)
 
-      halt 403 if quote.status != 'saved'
+      halt 403 unless Tiime.can_create_transaction?(quote)
 
       quote_pdf = ::Tiime::Quotation.pdf(id: quote_id)
       customer = ::Tiime::Customer.find(id: quote.client.id)
