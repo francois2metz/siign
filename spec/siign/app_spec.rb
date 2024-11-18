@@ -2,6 +2,7 @@
 
 require 'rspec'
 require 'rack/test'
+require 'spec_helper'
 
 require 'siign'
 
