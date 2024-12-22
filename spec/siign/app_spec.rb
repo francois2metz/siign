@@ -184,10 +184,10 @@ RSpec.describe Siign::App do
           .with('iddocage')
           .and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
         expect_tiime_login
-        quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
+        quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved', client_name: 'Awesome Client')
         expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
         expect(quotation).to receive(:update)
-        expect(quote_notification).to receive(:notify).with(expected_notification, 'Test Quotation')
+        expect(quote_notification).to receive(:notify).with(expected_notification, 'Test Quotation', 'Awesome Client')
 
         post "/webhook?secret=#{webhook_secret}",
              JSON.generate({ Id: 'iddocage', Status: docage_status, Name: 'Test Quotation' }),
@@ -203,10 +203,10 @@ RSpec.describe Siign::App do
         .with('iddocage')
         .and_return(double(body: { 'MemberSummaries' => [{ 'Id' => 'memberid' }] }))
       expect_tiime_login
-      quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved')
+      quotation = Tiime::Quotation.new(title: 'Test Quotation', status: 'saved', client_name: 'Awesome Client')
       expect(Tiime::Quotation).to receive(:find).with(id: '2').and_return(quotation)
       expect(quotation).not_to receive(:update)
-      expect(quote_notification).to receive(:notify).with(:active, 'Test Quotation')
+      expect(quote_notification).to receive(:notify).with(:active, 'Test Quotation', 'Awesome Client')
 
       post "/webhook?secret=#{webhook_secret}",
            JSON.generate({ Id: 'iddocage', Status: 3, Name: 'Test Quotation' }),

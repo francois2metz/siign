@@ -91,8 +91,8 @@ module Siign
       request.body.rewind
       data = JSON.parse request.body.read
       docage.get_transaction(data['Id'])
-      update_quote_status(data['Id'], data['Status'])
-      QuoteNotification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'])
+      quote = update_quote_status(data['Id'], data['Status'])
+      QuoteNotification.new.notify(Docage::DOCAGE_STATUS_TO_SYMBOL[data['Status']], data['Name'], quote.client_name)
     rescue Faraday::ResourceNotFound
       halt 404
     end
@@ -165,10 +165,11 @@ module Siign
       quote = ::Tiime::Quotation.find(id: quote_id)
       status = Docage::DOCAGE_STATUS_TO_SYMBOL[transaction_status]
 
-      return unless DOCAGE_TO_TIIME_STATUS.keys.include?(status)
+      return quote unless DOCAGE_TO_TIIME_STATUS.keys.include?(status)
 
       quote.status = DOCAGE_TO_TIIME_STATUS[status]
       quote.update
+      quote
     end
   end
 end
