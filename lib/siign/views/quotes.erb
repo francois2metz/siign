@@ -6,6 +6,7 @@
        <span class="badge text-bg-<%= QUOTE_STATUS_TO_BOOTSTRAP[quote.status] %>"><%= quote.status %></span>
        <span class="badge text-bg-secondary"><%= quote.emission_date %></span>
        <%= quote.title %>
+       - <%= quote.client_name %>
        <span class="badge text-bg-info"><%= quote.total_excluding_taxes %>€</span>
      </div>
      <div class="d-flex justify-content-end mt-2">
