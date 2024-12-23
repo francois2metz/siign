@@ -14,10 +14,10 @@
          if !!transaction
        %>
        <div class="row">
-         <div class="col-auto">
-           <input class="form-control" type="text" readonly value="<%= url("/devis/#{quote.id}/#{transaction[1]}") %>">
+         <div class="col-auto pe-0">
+           <input class="form-control form-control-sm" type="text" readonly value="<%= url("/devis/#{quote.id}/#{transaction[1]}") %>">
          </div>
-         <div class="col-auto">
+         <div class="col-auto ps-0">
            <button class="btn btn-primary btn-sm" type="button" onclick="navigator.clipboard.writeText('<%= url("/devis/#{quote.id}/#{transaction[1]}") %>');">
              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
                  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6ZM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2Z"/>
@@ -26,9 +26,9 @@
            <%
              if Siign::Tiime.can_cancel_transaction?(quote)
            %>
-           <form method="post" action="/devis/<%= quote.id %>">
+           <form method="post" action="/devis/<%= quote.id %>" class="d-inline">
              <input name="_method" type="hidden" value="delete" />
-             <button type="submit" class="btn btn-primary btn-sm">Supprimer la transaction</button>
+             <button type="submit" class="btn btn-danger btn-sm">Supprimer la transaction</button>
            </form>
            <%
              end
