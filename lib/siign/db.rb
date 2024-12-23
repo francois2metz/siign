@@ -32,6 +32,10 @@ module Siign
       db.execute('SELECT quote_id, transaction_id FROM quote_transaction')
     end
 
+    def remove_transaction(quote_id)
+      db.execute('DELETE FROM quote_transaction WHERE quote_id=?', [quote_id])
+    end
+
     private
 
     def db

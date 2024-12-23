@@ -13,7 +13,7 @@ RSpec.describe Siign::Db do
       expect(db.get_transaction_by_quote_id('1')).to eql('42')
     end
 
-    it 'insert the transaction id associated to a quote2' do
+    it 'insert the transaction id associated to a quote 2' do
       db = described_class.new(':memory:')
       db.associate_quote_and_transaction('1', 'a160d65f-bb7e-4184-a7f9-da3da953ad7e')
 
@@ -26,6 +26,16 @@ RSpec.describe Siign::Db do
       expect do
         db.associate_quote_and_transaction('1', '42')
       end.to raise_error(SQLite3::ConstraintException)
+    end
+  end
+
+  describe '#remove_transaction' do
+    it 'remove the link between the quote and the transaction' do
+      db = described_class.new(':memory:')
+      db.associate_quote_and_transaction('1', '42')
+      db.remove_transaction('1')
+
+      expect(db.get_transaction_by_quote_id('1')).to be_nil
     end
   end
 

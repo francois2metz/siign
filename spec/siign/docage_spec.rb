@@ -115,4 +115,15 @@ RSpec.describe Siign::Docage do
       described_class.new('user', 'token').get_transaction('iddocage')
     end
   end
+
+  describe '#cancel_transaction' do
+    it 'cancel the transaction' do
+      allow(Faraday).to receive(:new).and_return(faraday)
+      expect(faraday).to receive(:get).with(
+        '/Transactions/Abort/iddocage'
+      )
+
+      described_class.new('user', 'token').cancel_transaction('iddocage')
+    end
+  end
 end

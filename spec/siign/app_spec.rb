@@ -295,4 +295,68 @@ RSpec.describe Siign::App do
       expect(last_response.status).to eq(403)
     end
   end
+
+  describe 'DELETE /devis/:id' do
+    context 'when connected' do
+      before do
+        post '/login', password: tiime_password
+      end
+
+      it 'cancel the docage transaction and remove the link in db' do
+        Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
+        expect_tiime_login
+        expect(Tiime::Quotation).to receive(:find)
+          .with(id: '2')
+          .and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                           status: 'saved'))
+        expect(Siign::Docage).to receive(:new).and_return(docage)
+        expect(docage).to receive(:cancel_transaction).with('iddocage')
+
+        delete '/devis/2'
+        expect(last_response.status).to eq(302)
+        expect(last_response.headers['location']).to eq('http://example.org/devis')
+
+        expect(Siign::Db.new(db_path).get_transaction_by_quote_id('2')).to be_nil
+      end
+
+      it 'with method override cancel the docage transaction and remove the link in db' do
+        Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
+        expect_tiime_login
+        expect(Tiime::Quotation).to receive(:find)
+          .with(id: '2')
+          .and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                           status: 'saved'))
+        expect(Siign::Docage).to receive(:new).and_return(docage)
+        expect(docage).to receive(:cancel_transaction).with('iddocage')
+
+        post '/devis/2', _method: 'delete'
+        expect(last_response.status).to eq(302)
+        expect(last_response.headers['location']).to eq('http://example.org/devis')
+
+        expect(Siign::Db.new(db_path).get_transaction_by_quote_id('2')).to be_nil
+      end
+
+      it 'cannot when the quote is accepted' do
+        Siign::Db.new(db_path).associate_quote_and_transaction('2', 'iddocage')
+
+        expect_tiime_login
+        expect(Tiime::Quotation).to receive(:find)
+          .with(id: '2')
+          .and_return(Tiime::Quotation.new(title: 'Test Quotation',
+                                           status: 'accepted'))
+
+        delete '/devis/2'
+        expect(last_response.status).to eq(403)
+      end
+    end
+
+    context 'when disconnected' do
+      it 'redirect to /login' do
+        delete '/devis/1'
+
+        expect(last_response.status).to eq(302)
+        expect(last_response.headers['location']).to eq('http://example.org/login')
+      end
+    end
+  end
 end

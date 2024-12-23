@@ -21,6 +21,7 @@ module Siign
       aborted: 'cancelled'
     }.freeze
 
+    use Rack::MethodOverride
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
@@ -120,6 +121,24 @@ module Siign
       )
 
       db.associate_quote_and_transaction(quote_id, transaction.body['Id'])
+
+      redirect to('/devis')
+    end
+
+    delete '/devis/:id' do
+      return redirect('/login') unless logged?
+
+      login_tiime
+
+      quote_id = params[:id]
+      quote = ::Tiime::Quotation.find(id: quote_id)
+
+      halt 403 unless Tiime.can_cancel_transaction?(quote)
+
+      transaction_id = db.get_transaction_by_quote_id(params[:id])
+      docage.cancel_transaction(transaction_id)
+
+      db.remove_transaction(params[:id])
 
       redirect to('/devis')
     end

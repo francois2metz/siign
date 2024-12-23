@@ -34,6 +34,10 @@ module Siign
       conn.get("/Transactions/ById/#{id}")
     end
 
+    def cancel_transaction(id)
+      conn.get("/Transactions/Abort/#{id}")
+    end
+
     private
 
     def conn

@@ -30,6 +30,10 @@ module Siign
         quote.status == 'saved'
       end
 
+      def can_cancel_transaction?(quote)
+        quote.status == 'saved'
+      end
+
       private
 
       def conn
