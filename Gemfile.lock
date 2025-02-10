@@ -88,7 +88,7 @@ GEM
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0107)
+    mime-types-data (3.2025.0204)
     mini_portile2 (2.8.8)
     minitest (5.25.4)
     multi_json (1.15.0)
@@ -142,7 +142,7 @@ GEM
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-core (3.13.2)
+    rspec-core (3.13.3)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.3)
       diff-lcs (>= 1.2.0, < 2.0)
