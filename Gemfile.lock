@@ -68,7 +68,7 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
-    flexirest (1.12.4)
+    flexirest (1.12.5)
       actionpack
       activesupport
       crack
@@ -89,7 +89,7 @@ GEM
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0204)
+    mime-types-data (3.2025.0220)
     mini_portile2 (2.8.8)
     minitest (5.25.4)
     multi_json (1.15.0)
