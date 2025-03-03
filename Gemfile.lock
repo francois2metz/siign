@@ -61,7 +61,7 @@ GEM
     faraday-cookie_jar (0.0.7)
       faraday (>= 0.8.0)
       http-cookie (~> 1.0.0)
-    faraday-gzip (3.0.2)
+    faraday-gzip (3.0.3)
       faraday (>= 2.0, < 3)
       zlib (~> 3.0)
     faraday-multipart (1.1.0)
@@ -190,7 +190,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     zlib (3.2.1)
 
