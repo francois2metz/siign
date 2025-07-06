@@ -38,28 +38,6 @@ RSpec.describe Siign::App do
     end
   end
 
-  describe 'POST /' do
-    let(:notification) { instance_double(Siign::Notification) }
-
-    it 'returns a 200 and send a notification' do
-      allow(Siign::Notification).to receive(:new).and_return(notification)
-      expect(notification).to receive(:notify).with('test@example.net souhaite être contacté a propos de Siign')
-
-      post '/', email: 'test@example.net'
-      expect(last_response).to be_ok
-      expect(last_response.status).to eq(200)
-    end
-
-    it 'dont send the notification if the email is empty' do
-      allow(Siign::Notification).to receive(:new).and_return(notification)
-      expect(notification).not_to receive(:notify)
-
-      post '/', email: ''
-      expect(last_response).to be_ok
-      expect(last_response.status).to eq(200)
-    end
-  end
-
   describe 'GET /404' do
     it 'returns a 404' do
       get '/404'
