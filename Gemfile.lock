@@ -89,7 +89,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0729)
+    mime-types-data (3.2025.0805)
     mini_portile2 (2.8.9)
     minitest (5.25.5)
     multi_json (1.17.0)
@@ -138,7 +138,7 @@ GEM
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     rainbow (3.1.1)
-    regexp_parser (2.11.0)
+    regexp_parser (2.11.1)
     rexml (3.4.1)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
