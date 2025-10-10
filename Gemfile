@@ -7,7 +7,7 @@ gem 'faraday', '~> 2.12'
 gem 'faraday-cookie_jar', '~> 0.0.7'
 gem 'faraday-multipart', '~> 1.0'
 gem 'puma', '~> 7.0'
-gem 'sinatra', '~> 4.0'
+gem 'sinatra', '~> 4.2'
 gem 'sqlite3', '~> 2.1'
 gem 'tiime', github: 'francois2metz/ruby-tiime'
 
