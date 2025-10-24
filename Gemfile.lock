@@ -140,7 +140,7 @@ GEM
     rainbow (3.1.1)
     regexp_parser (2.11.3)
     rexml (3.4.4)
-    rspec (3.13.1)
+    rspec (3.13.2)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
