@@ -74,7 +74,7 @@ GEM
       faraday (~> 2.7)
       mime-types
       multi_json
-    http-cookie (1.0.8)
+    http-cookie (1.1.0)
       domain_name (~> 0.5)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
@@ -95,8 +95,8 @@ GEM
     multipart-post (2.4.1)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
-    net-http (0.7.0)
-      uri
+    net-http (0.8.0)
+      uri (>= 0.11.1)
     nio4r (2.7.5)
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
