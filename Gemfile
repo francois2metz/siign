@@ -13,6 +13,6 @@ gem 'tiime', github: 'francois2metz/ruby-tiime'
 
 group :test, :development do
   gem 'rspec', '~> 3.13'
-  gem 'rubocop', '~> 1.67'
+  gem 'rubocop', '> 1.81', '< 1.82'
   gem 'rubocop-rspec', '~> 3.2'
 end
