@@ -108,7 +108,7 @@ module Siign
       transaction = docage.create_full_transaction(
         quote.title,
         StringIO.new(quote_pdf),
-        docage_client_payload(customer, contacts),
+        docage_client_payload(customer, contacts.first),
         is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false',
         webhook: url("/webhook?secret=#{ENV.fetch('WEBHOOK_SECRET', nil)}")
       )
@@ -157,12 +157,12 @@ module Siign
       session[:logged] == true
     end
 
-    def docage_client_payload(customer, contacts)
+    def docage_client_payload(customer, contact)
       {
-        Email: contacts.first.email || customer.email,
-        Mobile: contacts.first.phone || customer.phone,
-        FirstName: contacts.first.firstname,
-        LastName: contacts.first.lastname,
+        Email: contact.email || customer.email,
+        Mobile: contact.phone || customer.phone,
+        FirstName: contact.firstname,
+        LastName: contact.lastname,
         Address1: customer.address,
         Address2: customer.address_complement,
         City: customer.city,
