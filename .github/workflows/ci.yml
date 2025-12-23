@@ -13,3 +13,7 @@ jobs:
     - run: bundle exec rspec
       env:
        RACK_ENV: test
+
+    - run: bundle exec rubocop --format github
+      env:
+       RACK_ENV: test
