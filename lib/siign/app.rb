@@ -159,15 +159,15 @@ module Siign
 
     def docage_client_payload(customer, contacts)
       {
-        Email: customer.email,
+        Email: contacts.first.email || customer.email,
+        Mobile: contacts.first.phone || customer.phone,
         FirstName: contacts.first.firstname,
         LastName: contacts.first.lastname,
         Address1: customer.address,
         Address2: customer.address_complement,
         City: customer.city,
         ZipCode: customer.postal_code,
-        Country: customer.country.name,
-        Mobile: customer.phone
+        Country: customer.country.name
       }
     end
 
