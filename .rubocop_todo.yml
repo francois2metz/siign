@@ -8,6 +8,9 @@
 
 # Offense count: 8
 # Configuration parameters: CountAsOne.
+Metrics/ClassLength:
+  Max: 150
+
 RSpec/ExampleLength:
   Max: 59
 
