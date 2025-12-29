@@ -49,7 +49,6 @@ GEM
       rexml
     crass (1.0.6)
     diff-lcs (1.6.2)
-    domain_name (0.6.20240107)
     dotenv (3.2.0)
     drb (2.2.3)
     erubi (1.13.1)
@@ -57,9 +56,6 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-cookie_jar (0.0.8)
-      faraday (>= 0.8.0)
-      http-cookie (>= 1.0.0)
     faraday-gzip (3.0.4)
       faraday (>= 2.0, < 3)
       zlib (~> 3.0)
@@ -74,8 +70,6 @@ GEM
       faraday (~> 2.7)
       mime-types
       multi_json
-    http-cookie (1.1.0)
-      domain_name (~> 0.5)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     json (2.18.0)
@@ -207,7 +201,6 @@ PLATFORMS
 DEPENDENCIES
   dotenv (~> 3.1)
   faraday (~> 2.12)
-  faraday-cookie_jar (~> 0.0.7)
   faraday-multipart (~> 1.0)
   puma (~> 7.0)
   rspec (~> 3.13)
