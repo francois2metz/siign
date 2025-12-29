@@ -1,4 +1,4 @@
-FROM ruby:3.4-bookworm
+FROM ruby:4.0-bookworm
 
 RUN set -eux ;\
     DEBIAN_FRONTEND=noninteractive apt-get update ;\
