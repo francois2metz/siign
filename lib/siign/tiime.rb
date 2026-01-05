@@ -45,7 +45,8 @@ module Siign
           client_id: CLIENT_ID,
           username: user,
           password: password,
-          scope: 'openid email'
+          scope: 'openid email',
+          audience: 'https://chronos/'
         }
       end
 
