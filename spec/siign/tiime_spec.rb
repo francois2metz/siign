@@ -14,7 +14,8 @@ RSpec.describe Siign::Tiime do
         username: user,
         password: password,
         grant_type: 'password',
-        scope: 'openid email'
+        scope: 'openid email',
+        audience: 'https://chronos/'
       }
     ).and_return(double(body: { 'access_token' => access_token }))
   end
