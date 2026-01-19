@@ -82,7 +82,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0924)
+    mime-types-data (3.2026.0113)
     mini_portile2 (2.8.9)
     minitest (6.0.1)
       prism (~> 1.5)
@@ -107,10 +107,10 @@ GEM
     nokogiri (1.19.0-x86_64-linux-gnu)
       racc (~> 1.4)
     parallel (1.27.0)
-    parser (3.3.10.0)
+    parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
-    prism (1.7.0)
+    prism (1.8.0)
     puma (7.1.0)
       nio4r (~> 2.0)
     racc (1.8.1)
