@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'dotenv', '~> 3.1'
-gem 'faraday', '~> 2.12'
+gem 'faraday', '~> 2.14'
 gem 'faraday-multipart', '~> 1.0'
 gem 'puma', '~> 7.0'
 gem 'sinatra', '~> 4.2'
