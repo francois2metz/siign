@@ -47,7 +47,7 @@ GEM
     crack (1.0.1)
       bigdecimal
       rexml
-    crass (1.0.6)
+    crass (1.0.7)
     diff-lcs (1.6.2)
     dotenv (3.2.0)
     drb (2.2.3)
@@ -72,7 +72,7 @@ GEM
       multi_json
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    json (2.19.9)
+    json (2.20.0)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
