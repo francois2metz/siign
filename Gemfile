@@ -4,6 +4,7 @@ source 'https://gem.coop'
 
 gem 'dotenv', '~> 3.1'
 gem 'faraday', '~> 2.14'
+gem 'faraday-cookie_jar', '~> 0.0.8'
 gem 'faraday-multipart', '~> 1.0'
 gem 'puma', '~> 8.0'
 gem 'sinatra', '~> 4.2'
