@@ -6,6 +6,18 @@ require 'faraday-cookie_jar'
 module Siign
   # Authenticate to Tiime API
   class Tiime
+    # Store token related info
+    class Token
+      attr_reader :access_token, :refresh_token, :id_token, :expires_in
+
+      def initialize(access_token, refresh_token, id_token, expires_in)
+        @access_token = access_token
+        @refresh_token = refresh_token
+        @id_token = id_token
+        @expires_in = expires_in
+      end
+    end
+
     class << self
       attr_writer :conn, :token
 
@@ -21,12 +33,13 @@ module Siign
         location = URI(extract_location(response))
         location = handle_mfa location.to_s if mfa?(location)
         code = extract_from_query(location, 'code')
-        token_call(code).body['access_token']
+        create_token token_call(code).body
       end
 
       def token(user, password)
         check_token_validity
         @token ||= authenticate(user, password)
+        @token.access_token
       end
 
       def can_create_transaction?(quote)
@@ -66,7 +79,7 @@ module Siign
           response_type: 'code',
           client_id: CLIENT_ID,
           redirect_uri: REDIRECT_URI,
-          scope: 'openid email',
+          scope: 'openid email offline_access',
           audience: AUDIENCE,
           state: 'state'
         }
@@ -83,6 +96,10 @@ module Siign
           code: code,
           redirect_uri: REDIRECT_URI
         }
+      end
+
+      def create_token(body)
+        Token.new body['access_token'], body['refresh_token'], body['id_token'], body['expires_in']
       end
 
       def user_password_call(location, state, user, password)

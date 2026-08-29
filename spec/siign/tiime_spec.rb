@@ -14,7 +14,7 @@ RSpec.describe Siign::Tiime do
           client_id: 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
           response_type: 'code',
           redirect_uri: 'https://apps.tiime.fr/auth-callback',
-          scope: 'openid email',
+          scope: 'openid email offline_access',
           audience: 'https://chronos/',
           state: 'state'
         }
@@ -93,7 +93,10 @@ RSpec.describe Siign::Tiime do
                                              redirect_uri: 'https://apps.tiime.fr/auth-callback'
                                            })
                                      .and_return(double(body: {
-                                                          'access_token' => access_token
+                                                          'access_token' => access_token,
+                                                          'refresh_token' => 'refresh',
+                                                          'expires_in' => 86_400,
+                                                          'id_token' => 'id'
                                                         }))
   end
 
@@ -123,15 +126,18 @@ RSpec.describe Siign::Tiime do
     it 'fetch access token' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token('user', 'password', 'eee')
-      access_token = described_class.authenticate('user', 'password')
-      expect(access_token).to eq('eee')
+      token = described_class.authenticate('user', 'password')
+      expect(token.access_token).to eq('eee')
+      expect(token.refresh_token).to eq('refresh')
+      expect(token.expires_in).to eq(86_400)
+      expect(token.id_token).to eq('id')
     end
 
     it 'wait for mfa authorization' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token_with_mfa('user', 'password', 'eee')
-      access_token = described_class.authenticate('user', 'password')
-      expect(access_token).to eq('eee')
+      token = described_class.authenticate('user', 'password')
+      expect(token.access_token).to eq('eee')
     end
   end
 
