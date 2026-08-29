@@ -10,14 +10,18 @@ module Siign
       attr_writer :conn, :token
 
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
-      REALM = 'Chronos-prod-db'
       AUDIENCE = 'https://chronos/'
+      REDIRECT_URI = 'https://apps.tiime.fr/auth-callback'
 
       def authenticate(user, password)
-        login_ticket = authenticate_call(user, password)
-        location = authorize_call(user, login_ticket)
-        location = handle_mfa(location.to_s) if mfa?(location)
-        extract_access_token(location)
+        location = extract_location authorize_call
+        state = extract_from_query location, 'state'
+        response = user_password_call location, state, user, password
+        response = resume_call extract_location(response)
+        location = URI(extract_location(response))
+        location = handle_mfa location.to_s if mfa?(location)
+        code = extract_from_query(location, 'code')
+        token_call(code).body['access_token']
       end
 
       def token(user, password)
@@ -45,39 +49,57 @@ module Siign
         end
       end
 
-      def authenticate_call(user, password)
-        body = conn.post('/co/authenticate', authenticate_params(user, password),
-                         { origin: 'https://apps.tiime.fr' }).body
-        body['login_ticket']
+      def extract_location(response)
+        response.headers['location']
       end
 
-      def authenticate_params(user, password)
+      def extract_from_query(location, param)
+        Rack::Utils.parse_query(URI(location).query)[param]
+      end
+
+      def authorize_call
+        conn.get('/authorize', authorize_params)
+      end
+
+      def authorize_params
         {
+          response_type: 'code',
           client_id: CLIENT_ID,
-          username: user,
-          password: password,
-          realm: REALM,
-          credential_type: 'http://auth0.com/oauth/grant-type/password-realm'
-        }
-      end
-
-      def authorize_call(user, login_ticket)
-        response = conn.get('/authorize', authorize_params(user, login_ticket))
-        URI(response.headers['location'])
-      end
-
-      def authorize_params(user, login_ticket)
-        {
-          client_id: CLIENT_ID,
-          response_type: 'token id_token',
-          redirect_uri: "https://apps.tiime.fr/auth-callback?ctx-email=#{user}&login_initiator=user",
+          redirect_uri: REDIRECT_URI,
           scope: 'openid email',
           audience: AUDIENCE,
-          realm: REALM,
-          login_ticket: login_ticket,
-          nonce: 'nonce',
           state: 'state'
         }
+      end
+
+      def token_call(code)
+        conn.post('/oauth/token', token_params(code))
+      end
+
+      def token_params(code)
+        {
+          grant_type: 'authorization_code',
+          client_id: CLIENT_ID,
+          code: code,
+          redirect_uri: REDIRECT_URI
+        }
+      end
+
+      def user_password_call(location, state, user, password)
+        response = user_call location, state, user
+        password_call extract_location(response), state, user, password
+      end
+
+      def user_call(location, state, user)
+        conn.post(location, { state: state, username: user })
+      end
+
+      def password_call(location, state, user, password)
+        conn.post(location, { state: state, username: user, password: password })
+      end
+
+      def resume_call(location)
+        conn.get location
       end
 
       def mfa?(location)
@@ -100,11 +122,6 @@ module Siign
 
           sleep ENV['RACK_ENV'] == 'test' ? 0 : 3
         end
-      end
-
-      def extract_access_token(location)
-        params = Rack::Utils.parse_query(location.fragment)
-        params['access_token']
       end
 
       def check_token_validity
