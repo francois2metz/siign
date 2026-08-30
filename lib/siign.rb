@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'siign/logger'
 require 'siign/app'
 require 'siign/tiime'
 require 'siign/docage'

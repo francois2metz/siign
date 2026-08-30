@@ -15,18 +15,15 @@ module Siign
       REDIRECT_URI = 'https://apps.tiime.fr/auth-callback'
 
       def authenticate(user, password)
-        location = extract_location authorize_call
-        state = extract_from_query location, 'state'
-        response = user_password_call location, state, user, password
-        response = resume_call extract_location(response)
-        location = URI(extract_location(response))
-        location = handle_mfa location.to_s if mfa?(location)
-        code = extract_from_query(location, 'code')
-        create_token token_call(code).body
+        Siign.logger.debug 'Authenticating the user'
+        token = authenticate_user(user, password)
+        Siign.logger.debug 'Authentication done'
+        token
       end
 
       def token(user, password)
-        check_token_validity
+        check_token_expiration!
+
         @token ||= authenticate(user, password)
         @token.access_token
       end
@@ -49,6 +46,17 @@ module Siign
           f.adapter :net_http
           f.use :cookie_jar
         end
+      end
+
+      def authenticate_user(user, password)
+        location = extract_location authorize_call
+        state = extract_from_query location, 'state'
+        response = user_password_call location, state, user, password
+        response = resume_call extract_location(response)
+        location = URI(extract_location(response))
+        location = handle_mfa location.to_s if mfa?(location)
+        code = extract_from_query(location, 'code')
+        create_token token_call(code).body
       end
 
       def extract_location(response)
@@ -120,20 +128,26 @@ module Siign
       end
 
       def wait_for_mfa_completed(location)
+        waiting_time = ENV['RACK_ENV'] == 'test' ? 0 : 3
         attempts = 0
         loop do
           body = conn.get(location, {}, { 'Accept' => 'application/json' }).body
           attempts += 1
           break if body['completed'] || attempts > 200
 
-          sleep ENV['RACK_ENV'] == 'test' ? 0 : 3
+          Siign.logger.debug "Waiting for mfa to be completed #{waiting_time}s"
+          sleep waiting_time
         end
       end
 
       def refresh_token
+        Siign.logger.debug('Refreshing the token')
         body = conn.post('/oauth/token', refresh_token_params).body
         @token.update Token.from_response(body)
-      rescue Faraday::ClientError
+        Siign.logger.debug('Refreshing token done')
+      rescue Faraday::ClientError => e
+        Siign.logger.error('Could not refresh the token')
+        Siign.logger.error(e)
         @token = nil
       end
 
@@ -145,7 +159,7 @@ module Siign
         }
       end
 
-      def check_token_validity
+      def check_token_expiration!
         return unless @token
 
         refresh_token if @token.expired?
