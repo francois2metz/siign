@@ -21,6 +21,15 @@ module Siign
       aborted: 'cancelled'
     }.freeze
 
+    TIIME_LANG_TO_DOCAGE = {
+      GB: 0,
+      FR: 1,
+      ES: 2,
+      DE: 3,
+      IT: 10,
+      PT: 14
+    }.freeze
+
     use Rack::MethodOverride
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
@@ -109,7 +118,7 @@ module Siign
       transaction = docage.create_full_transaction(
         quote.title,
         StringIO.new(quote_pdf),
-        docage_client_payload(customer, contacts.first),
+        docage_client_payload(customer, contacts.first, quote.lang_country_code),
         is_test: ENV.fetch('DOCAGE_TEST_MODE', 'false') != 'false',
         webhook: url("/webhook?secret=#{ENV.fetch('WEBHOOK_SECRET', nil)}")
       )
@@ -158,7 +167,7 @@ module Siign
       session[:logged] == true
     end
 
-    def docage_client_payload(customer, contact)
+    def docage_client_payload(customer, contact, lang)
       {
         Email: contact.email || customer.email,
         Mobile: contact.phone || customer.phone,
@@ -168,7 +177,8 @@ module Siign
         Address2: customer.address_complement,
         City: customer.city,
         ZipCode: customer.postal_code,
-        Country: customer.country.name
+        Country: customer.country.name,
+        Language: TIIME_LANG_TO_DOCAGE[lang.to_sym]
       }
     end
 

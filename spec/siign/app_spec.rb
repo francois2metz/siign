@@ -219,6 +219,7 @@ RSpec.describe Siign::App do
         .with(id: '3')
         .and_return(Tiime::Quotation.new(title: 'Test Quotation',
                                          status: 'saved',
+                                         lang_country_code: 'FR',
                                          client: Tiime::Quotation.new({ id: 1 })))
       expect(Tiime::Quotation).to receive(:pdf).with(id: '3').and_return('pdftext')
       expect(Tiime::Customer).to receive(:find)
@@ -248,7 +249,8 @@ RSpec.describe Siign::App do
             City: 'Paris',
             ZipCode: '75000',
             Country: 'France',
-            Mobile: '+33600000000'
+            Mobile: '+33600000000',
+            Language: 1
           },
           is_test: false,
           webhook: "http://example.org/webhook?secret=#{webhook_secret}"
@@ -266,6 +268,7 @@ RSpec.describe Siign::App do
         .with(id: '3')
         .and_return(Tiime::Quotation.new(title: 'Test Quotation',
                                          status: 'saved',
+                                         lang_country_code: 'GB',
                                          client: Tiime::Quotation.new({ id: 1 })))
       expect(Tiime::Quotation).to receive(:pdf).with(id: '3').and_return('pdftext')
       expect(Tiime::Customer).to receive(:find)
@@ -298,7 +301,8 @@ RSpec.describe Siign::App do
             City: 'Paris',
             ZipCode: '75000',
             Country: 'France',
-            Mobile: '+33600000000'
+            Mobile: '+33600000000',
+            Language: 0
           },
           is_test: false,
           webhook: "http://example.org/webhook?secret=#{webhook_secret}"
