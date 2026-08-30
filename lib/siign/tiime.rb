@@ -2,22 +2,11 @@
 
 require 'faraday'
 require 'faraday-cookie_jar'
+require 'siign/tiime/token'
 
 module Siign
   # Authenticate to Tiime API
   class Tiime
-    # Store token related info
-    class Token
-      attr_reader :access_token, :refresh_token, :id_token, :expires_in
-
-      def initialize(access_token, refresh_token, id_token, expires_in)
-        @access_token = access_token
-        @refresh_token = refresh_token
-        @id_token = id_token
-        @expires_in = expires_in
-      end
-    end
-
     class << self
       attr_writer :conn, :token
 
@@ -99,7 +88,7 @@ module Siign
       end
 
       def create_token(body)
-        Token.new body['access_token'], body['refresh_token'], body['id_token'], body['expires_in']
+        Token.from_response body
       end
 
       def user_password_call(location, state, user, password)
@@ -141,14 +130,25 @@ module Siign
         end
       end
 
+      def refresh_token
+        body = conn.post('/oauth/token', refresh_token_params).body
+        @token.update Token.from_response(body)
+      rescue Faraday::ClientError
+        @token = nil
+      end
+
+      def refresh_token_params
+        {
+          grant_type: 'refresh_token',
+          client_id: CLIENT_ID,
+          refresh_token: @token.refresh_token
+        }
+      end
+
       def check_token_validity
         return unless @token
 
-        begin
-          ::Tiime::User.me
-        rescue Flexirest::HTTPClientException
-          @token = nil
-        end
+        refresh_token if @token.expired?
       end
     end
   end

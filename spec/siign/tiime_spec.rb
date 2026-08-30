@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec'
+require 'timecop'
 require 'siign'
 
 RSpec.describe Siign::Tiime do
@@ -154,20 +155,53 @@ RSpec.describe Siign::Tiime do
       expect_access_token('user', 'password', 'rrr')
       access_token = described_class.token('user', 'password')
       expect(access_token).to eq('rrr')
-      expect(Tiime::User).to receive(:me)
       access_token2 = described_class.token('user', 'password')
       expect(access_token2).to eq('rrr')
     end
 
-    it 'fetch the token if the token is invalid' do
+    it 'refresh the token if expired' do
       expect(Faraday).to receive(:new).and_return(faraday)
       expect_access_token('user', 'password', 'rrr')
       access_token = described_class.token('user', 'password')
       expect(access_token).to eq('rrr')
-      expect(Tiime::User).to receive(:me).and_raise(Flexirest::HTTPClientException.new({ status: 401 }))
-      expect_access_token('user', 'password', 'aaa')
+      Timecop.travel(25 * 60 * 60)
+
+      expect(faraday).to receive(:post).with(
+        '/oauth/token',
+        {
+          grant_type: 'refresh_token',
+          client_id: 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
+          refresh_token: 'refresh'
+        }
+      ).and_return(double(body: {
+                            'access_token' => 'aaa',
+                            'expires_in' => 86_400,
+                            'scope' => 'openid offline_access',
+                            'id_token' => 'id',
+                            'token_type' => 'Bearer'
+                          }))
       access_token2 = described_class.token('user', 'password')
       expect(access_token2).to eq('aaa')
+    end
+
+    it 'reset the token if refreshing the token fail' do
+      expect(Faraday).to receive(:new).and_return(faraday)
+      expect_access_token('user', 'password', 'rrr')
+      access_token = described_class.token('user', 'password')
+      expect(access_token).to eq('rrr')
+      Timecop.travel(25 * 60 * 60)
+
+      expect(faraday).to receive(:post).with(
+        '/oauth/token',
+        {
+          grant_type: 'refresh_token',
+          client_id: 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
+          refresh_token: 'refresh'
+        }
+      ).and_raise(Faraday::UnauthorizedError)
+      expect_access_token('user', 'password', 'ttt')
+      access_token2 = described_class.token('user', 'password')
+      expect(access_token2).to eq('ttt')
     end
   end
 

@@ -15,4 +15,5 @@ group :test, :development do
   gem 'rspec', '~> 3.13'
   gem 'rubocop', '~> 1.81'
   gem 'rubocop-rspec', '~> 3.8'
+  gem 'timecop', '~> 0.9.11'
 end
