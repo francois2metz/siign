@@ -20,3 +20,7 @@ Metrics/MethodLength:
 
 RSpec/MessageSpies:
   EnforcedStyle: receive
+
+RSpec/LeakyLocalVariable:
+  Exclude:
+    - 'spec/siign/app_spec.rb'
