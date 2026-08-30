@@ -94,6 +94,7 @@ module Siign
     post '/devis/:id' do
       return redirect('/login') unless logged?
 
+      Siign.logger.debug "Creating signature for #{params[:id]}"
       login_tiime
 
       quote_id = params[:id]

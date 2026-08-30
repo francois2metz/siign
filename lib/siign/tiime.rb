@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'faraday-cookie_jar'
+require 'siign/tiime/token'
 
 module Siign
   # Authenticate to Tiime API
@@ -9,15 +11,21 @@ module Siign
       attr_writer :conn, :token
 
       CLIENT_ID = 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND'
+      AUDIENCE = 'https://chronos/'
+      REDIRECT_URI = 'https://apps.tiime.fr/auth-callback'
 
       def authenticate(user, password)
-        body = conn.post('/oauth/token', token_params(user, password)).body
-        body['access_token']
+        Siign.logger.debug 'Authenticating the user'
+        token = authenticate_user(user, password)
+        Siign.logger.debug 'Authentication done'
+        token
       end
 
       def token(user, password)
-        check_token_validity
+        check_token_expiration!
+
         @token ||= authenticate(user, password)
+        @token.access_token
       end
 
       def can_create_transaction?(quote)
@@ -36,28 +44,125 @@ module Siign
           f.response :raise_error
           f.response :json
           f.adapter :net_http
+          f.use :cookie_jar
         end
       end
 
-      def token_params(user, password)
+      def authenticate_user(user, password)
+        location = extract_location authorize_call
+        state = extract_from_query location, 'state'
+        response = user_password_call location, state, user, password
+        response = resume_call extract_location(response)
+        location = URI(extract_location(response))
+        location = handle_mfa location.to_s if mfa?(location)
+        code = extract_from_query(location, 'code')
+        create_token token_call(code).body
+      end
+
+      def extract_location(response)
+        response.headers['location']
+      end
+
+      def extract_from_query(location, param)
+        Rack::Utils.parse_query(URI(location).query)[param]
+      end
+
+      def authorize_call
+        conn.get('/authorize', authorize_params)
+      end
+
+      def authorize_params
         {
-          grant_type: 'password',
+          response_type: 'code',
           client_id: CLIENT_ID,
-          username: user,
-          password: password,
-          scope: 'openid email',
-          audience: 'https://chronos/'
+          redirect_uri: REDIRECT_URI,
+          scope: 'openid email offline_access',
+          audience: AUDIENCE,
+          state: 'state'
         }
       end
 
-      def check_token_validity
+      def token_call(code)
+        conn.post('/oauth/token', token_params(code))
+      end
+
+      def token_params(code)
+        {
+          grant_type: 'authorization_code',
+          client_id: CLIENT_ID,
+          code: code,
+          redirect_uri: REDIRECT_URI
+        }
+      end
+
+      def create_token(body)
+        Token.from_response body
+      end
+
+      def user_password_call(location, state, user, password)
+        response = user_call location, state, user
+        password_call extract_location(response), state, user, password
+      end
+
+      def user_call(location, state, user)
+        conn.post(location, { state: state, username: user })
+      end
+
+      def password_call(location, state, user, password)
+        conn.post(location, { state: state, username: user, password: password })
+      end
+
+      def resume_call(location)
+        conn.get location
+      end
+
+      def mfa?(location)
+        location.path == '/u/mfa-push-challenge'
+      end
+
+      def handle_mfa(location)
+        wait_for_mfa_completed(location)
+        response = conn.post(location)
+        response = conn.get(response.headers['location'])
+        URI(response.headers['location'])
+      end
+
+      def wait_for_mfa_completed(location)
+        waiting_time = ENV['RACK_ENV'] == 'test' ? 0 : 3
+        attempts = 0
+        loop do
+          body = conn.get(location, {}, { 'Accept' => 'application/json' }).body
+          attempts += 1
+          break if body['completed'] || attempts > 200
+
+          Siign.logger.debug "Waiting for mfa to be completed #{waiting_time}s"
+          sleep waiting_time
+        end
+      end
+
+      def refresh_token
+        Siign.logger.debug('Refreshing the token')
+        body = conn.post('/oauth/token', refresh_token_params).body
+        @token.update Token.from_response(body)
+        Siign.logger.debug('Refreshing token done')
+      rescue Faraday::ClientError => e
+        Siign.logger.error('Could not refresh the token')
+        Siign.logger.error(e)
+        @token = nil
+      end
+
+      def refresh_token_params
+        {
+          grant_type: 'refresh_token',
+          client_id: CLIENT_ID,
+          refresh_token: @token.refresh_token
+        }
+      end
+
+      def check_token_expiration!
         return unless @token
 
-        begin
-          ::Tiime::User.me
-        rescue Flexirest::HTTPClientException
-          @token = nil
-        end
+        refresh_token if @token.expired?
       end
     end
   end
