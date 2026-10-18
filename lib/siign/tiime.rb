@@ -16,9 +16,9 @@ module Siign
 
       def authenticate(user, password)
         Siign.logger.debug 'Authenticating the user'
-        token = authenticate_user(user, password)
-        Siign.logger.debug 'Authentication done'
-        token
+        authenticate_user(user, password).tap do
+          Siign.logger.debug 'Authentication done'
+        end
       end
 
       def token(user, password)
